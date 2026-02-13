@@ -8,11 +8,21 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.24">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2"/>
     </ItemGroup>
 
     <ItemGroup>
       <Folder Include="Controllers\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Discounts.Domain\Discounts.Domain.csproj" />
+      <ProjectReference Include="..\Discounts.Infra\Discounts.Infra.csproj" />
+      <ProjectReference Include="..\Dsicounts.Application\Dsicounts.Application.csproj" />
     </ItemGroup>
 
 </Project>
