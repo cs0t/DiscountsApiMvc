@@ -8,5 +8,5 @@ public class User
     public string PasswordHash { get; set; } = null!;
     
     public int RoleId { get; set; }
-    public Role? Role { get; set; }
+    public Role Role { get; set; } = null!;
 }

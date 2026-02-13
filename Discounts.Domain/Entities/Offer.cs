@@ -15,7 +15,7 @@ public class Offer
 
 
     public int StatusId { get; set; }
-    public OfferStatus? Status { get; set; }
+    public OfferStatus Status { get; set; } = null!;
     
     public DateTime CreatedAt { get; set; }
     public DateTime ExpirationDate { get; set; }
@@ -23,5 +23,5 @@ public class Offer
     public ICollection<Category> Categories { get; set; } = new List<Category>();
     
     public int SellerId { get; set; }
-    public User? Seller { get; set; }
+    public User Seller { get; set; } = null!;
 }

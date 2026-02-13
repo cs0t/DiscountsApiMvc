@@ -21,7 +21,22 @@ public class OfferConfiguration : IEntityTypeConfiguration<Offer>
         builder.Property(o => o.ExpirationDate).IsRequired().HasColumnType("datetime2");
         
         //relations
-        //builder.HasOne(o => o.Seller)
-            //.WithMany(s => s.off)
+        builder.HasOne(o => o.Seller)
+            .WithMany()
+            .HasForeignKey(o => o.SellerId)
+            .OnDelete(DeleteBehavior.Restrict);
+        
+        builder.HasOne(o => o.Status)
+            .WithMany(s=> s.Offers)
+            .HasForeignKey(o => o.StatusId)
+            .OnDelete(DeleteBehavior.Restrict);
+        
+        builder.HasMany(o => o.Categories)
+            .WithMany(c => c.Offers)
+            .UsingEntity(j => j.ToTable("OfferCategories"));
+        
+        //indexes
+         builder.HasIndex(o => o.Title);
+         builder.HasIndex(o => o.ExpirationDate);
     }
 }

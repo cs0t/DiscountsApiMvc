@@ -6,10 +6,10 @@ public class Coupon
     public string Code { get; set; } = null!;
 
     public int OfferId { get; set; }
-    public Offer? Offer { get; set; }
+    public Offer Offer { get; set; } = null!;
 
     public int CustomerId { get; set; }
-    public User? Customer { get; set; }
+    public User Customer { get; set; } = null!;
     
     public DateTime ExpirationDate { get; set; }
 }
