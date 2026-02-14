@@ -1,33 +1,33 @@
 using Discounts.Infra.Persistence;
+using Dsicounts.Application.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace Discounts.Infra.Repositories;
 
-public class Repository<T> where T : class
+public abstract class Repository<T> : IRepository<T> where T : class
 {
     protected readonly ApplicationDbContext _context;
+    protected readonly DbSet<T> _dbSet;
 
     public Repository(ApplicationDbContext dbContext)
     {
         _context = dbContext;
+        _dbSet = _context.Set<T>();
     }
     
-    protected virtual async Task<T?> GetByIdAsync(int id, CancellationToken ct = default)
+    public virtual async Task<T?> GetById(int id, CancellationToken ct = default)
     {
-        return await _context.Set<T>().FindAsync(new object[] { id }, ct);
+        return await _dbSet.FindAsync(new object[] { id }, ct);
     }
     
-    protected virtual async Task AddAsync(T entity, CancellationToken ct = default)
+    public virtual async Task Add(T entity, CancellationToken ct = default)
     {
-        await _context.Set<T>().AddAsync(entity, ct);
+        await _dbSet.AddAsync(entity, ct);
     }
     
-    protected virtual Task Update(T entity)
-    {
-        return Task.FromResult(_context.Set<T>().Update(entity));
-    }
+    public virtual void Update(T entity) => _dbSet.Update(entity);
 
-    protected virtual Task Delete(T entity, CancellationToken ct = default)
-    {
-        return Task.FromResult(_context.Set<T>().Remove(entity));
-    }
+    public virtual void Delete(T entity) => _dbSet.Remove(entity);
+    
+    public virtual async Task SaveChangesAsync(CancellationToken ct = default) =>  await _context.SaveChangesAsync(ct);
 }
