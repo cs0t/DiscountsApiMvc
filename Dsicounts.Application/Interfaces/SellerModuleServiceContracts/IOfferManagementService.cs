@@ -1,4 +1,6 @@
 using Discounts.Domain.Entities;
+using Dsicounts.Application.Models;
+using Dsicounts.Application.Queries;
 
 namespace Dsicounts.Application.Interfaces.SellerModuleServiceContracts;
 
@@ -10,5 +12,5 @@ public interface IOfferManagementService
 
     Task DisableOfferAsync(int offerId, int sellerId, CancellationToken ct = default);
 
-    Task<List<Offer>> GetMerchantOffersAsync(int sellerId, CancellationToken ct = default);
+    Task<PagedResult<Offer>> GetMerchantOffersAsync(OfferListQuery query, int sellerId, CancellationToken ct = default);
 }

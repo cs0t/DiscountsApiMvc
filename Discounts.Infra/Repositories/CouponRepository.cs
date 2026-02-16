@@ -42,4 +42,12 @@ public class CouponRepository : Repository<Coupon>,ICouponRepository
             .Where(c => c.Offer.SellerId == sellerId)
             .CountAsync(ct);
     }
+    
+    public Task<decimal> GetTotalIncomeFromCouponsForSellerAsync(int sellerId, CancellationToken ct = default)
+    {
+        return _context.Coupons
+            .AsNoTracking()
+            .Where(c => c.Offer.SellerId == sellerId)
+            .SumAsync(c => c.Offer.DiscountedPrice, ct);
+    }
 }

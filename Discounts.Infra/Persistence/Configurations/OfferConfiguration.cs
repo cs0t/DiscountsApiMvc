@@ -19,6 +19,13 @@ public class OfferConfiguration : IEntityTypeConfiguration<Offer>
         builder.Property(o =>o.RemainingQuantity).IsRequired();
         builder.Property(o => o.CreatedAt).IsRequired().HasColumnType("datetime2").HasDefaultValueSql("getutcdate()");
         builder.Property(o => o.ExpirationDate).IsRequired().HasColumnType("datetime2");
+        builder.Property(o => o.ApprovedAt).HasColumnType("datetime2");
+        builder.Property(o => o.RejectedAt).HasColumnType("datetime2");
+        builder.Property(o => o.UpdatedAt).HasColumnType("datetime2");
+        builder.Property(o => o.DisabledAt).HasColumnType("datetime2");
+        builder.Property(o => o.RejectionReason).HasMaxLength(1000);
+        builder.Property(o => o.EditableUntil).HasColumnType("datetime2");
+        
         
         //relations
         builder.HasOne(o => o.Seller)

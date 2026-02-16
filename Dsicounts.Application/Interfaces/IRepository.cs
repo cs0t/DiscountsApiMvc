@@ -1,3 +1,5 @@
+using System.Linq.Expressions;
+
 namespace Dsicounts.Application.Interfaces;
 
 public interface IRepository<T> where T : class
@@ -6,5 +8,6 @@ public interface IRepository<T> where T : class
     Task Add(T entity, CancellationToken ct = default);
     void Update(T entity);
     void Delete(T entity);
+    Task<bool> ExistsAsync(Expression<Func<T,bool>> pred, CancellationToken ct = default);
     Task SaveChangesAsync(CancellationToken ct = default);
 }

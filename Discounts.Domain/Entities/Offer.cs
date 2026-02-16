@@ -19,6 +19,12 @@ public class Offer
     
     public DateTime CreatedAt { get; set; }
     public DateTime ExpirationDate { get; set; }
+    public DateTime? ApprovedAt { get; set; }
+    public DateTime? RejectedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
+    public DateTime? DisabledAt { get; set; }
+    public string? RejectionReason { get; set; }
+    public DateTime? EditableUntil { get; set; }
     
     public ICollection<Category> Categories { get; set; } = new List<Category>();
     

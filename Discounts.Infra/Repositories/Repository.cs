@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using Discounts.Infra.Persistence;
 using Dsicounts.Application.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -28,6 +29,11 @@ public abstract class Repository<T> : IRepository<T> where T : class
     public virtual void Update(T entity) => _dbSet.Update(entity);
 
     public virtual void Delete(T entity) => _dbSet.Remove(entity);
-    
+
+    public Task<bool> ExistsAsync(Expression<Func<T, bool>> pred, CancellationToken ct = default)
+    {
+        return _dbSet.AsNoTracking().AnyAsync(pred, ct);
+    }
+
     public virtual async Task SaveChangesAsync(CancellationToken ct = default) =>  await _context.SaveChangesAsync(ct);
 }

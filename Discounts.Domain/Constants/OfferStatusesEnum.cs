@@ -5,5 +5,6 @@ public enum OfferStatusesEnum
     Pending = 1,
     Approved,
     Rejected,
-    Expired
+    Expired,
+    Disabled
 }

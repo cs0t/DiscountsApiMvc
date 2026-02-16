@@ -2,6 +2,8 @@ using Discounts.Domain.Constants;
 using Discounts.Domain.Entities;
 using Discounts.Infra.Persistence;
 using Dsicounts.Application.Interfaces.RepositoryContracts;
+using Dsicounts.Application.Models;
+using Dsicounts.Application.Queries;
 using Microsoft.EntityFrameworkCore;
 
 namespace Discounts.Infra.Repositories;
@@ -34,14 +36,26 @@ public class OfferRepository : Repository<Offer>, IOfferRepository
             .ToListAsync(ct);
     }
 
-    public Task<List<Offer>> GetBySellerAsync(int sellerId, CancellationToken ct = default)
+    public async Task<PagedResult<Offer>> GetBySellerAsync(OfferListQuery query, int sellerId, CancellationToken ct = default)
     {
-        return _context.Offers
+        var pageSize = query.PageSize is < 1 or > 20 ? 10 : query.PageSize;
+        var pageNumber = query.PageNumber < 1 ? 1 : query.PageNumber;
+
+        var sellerOffersQuery = _context.Offers
             .AsNoTracking()
-            .Where(o=>o.SellerId == sellerId)
+            .Where(o => o.SellerId == sellerId);
+        
+        var totalCount = await sellerOffersQuery.CountAsync(ct);
+        
+        var paged =  await sellerOffersQuery
             .Include(o => o.Categories)
             .Include(o => o.Status)
+            .OrderByDescending(o => o.CreatedAt)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
             .ToListAsync(ct);
+        
+        return new PagedResult<Offer>(paged, totalCount, pageNumber, pageSize );
     }
     
     public Task<int> GetOfferCountBySellerAndStatusAsync(int sellerId, int? statusId, CancellationToken ct = default)
