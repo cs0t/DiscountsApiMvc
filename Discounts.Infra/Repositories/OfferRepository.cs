@@ -1,9 +1,9 @@
 using Discounts.Domain.Constants;
 using Discounts.Domain.Entities;
 using Discounts.Infra.Persistence;
-using Dsicounts.Application.Interfaces.RepositoryContracts;
-using Dsicounts.Application.Models;
-using Dsicounts.Application.Queries;
+using Discounts.Application.Interfaces.RepositoryContracts;
+using Discounts.Application.Models;
+using Discounts.Application.Queries;
 using Microsoft.EntityFrameworkCore;
 
 namespace Discounts.Infra.Repositories;

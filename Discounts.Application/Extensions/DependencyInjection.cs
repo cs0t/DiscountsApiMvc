@@ -1,0 +1,18 @@
+using Discounts.Application.Interfaces.SellerModuleServiceContracts;
+using Discounts.Application.Interfaces.SystemSettingsContracts;
+using Discounts.Application.Services.SellerModuleServices;
+using Discounts.Application.Services.SystemSettingsServices;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace Discounts.Application.Extensions;
+
+public static class DependencyInjection
+{
+    public static IServiceCollection AddApplication(this IServiceCollection services)
+    {
+        services.AddScoped<ISellerDashboardService, SellerDashboardService>();
+        services.AddScoped<IOfferManagementService, OfferManagementService>();
+        services.AddScoped<ISystemSettingsService, SystemSettingsService>();
+        return services;
+    }
+}

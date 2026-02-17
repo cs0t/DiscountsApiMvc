@@ -1,7 +1,7 @@
 using Discounts.Domain.Entities;
 using Discounts.Infra.Persistence;
-using Dsicounts.Application.Interfaces;
-using Dsicounts.Application.Interfaces.RepositoryContracts;
+using Discounts.Application.Interfaces;
+using Discounts.Application.Interfaces.RepositoryContracts;
 using Microsoft.EntityFrameworkCore;
 
 namespace Discounts.Infra.Repositories;
@@ -33,6 +33,14 @@ public class CouponRepository : Repository<Coupon>,ICouponRepository
             .Include(c => c.Customer)
             .Include(c => c.Offer)
             .Where(c => c.OfferId == offerId).ToListAsync(ct);
+    }
+
+    public Task<List<Coupon>> GetBySellerIdAsync(int sellerId, CancellationToken ct = default)
+    {
+        return _context.Coupons
+            .AsNoTracking()
+            .Include(c => c.Status)
+            .Where(c => c.Offer.SellerId == sellerId).ToListAsync(ct);
     }
     
     public Task<int> GetCouponCountForSellerAsync(int sellerId, CancellationToken ct = default)

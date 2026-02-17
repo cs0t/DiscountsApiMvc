@@ -84,6 +84,14 @@ namespace Discounts.Infra.Migrations
                     b.Property<int>("OfferId")
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("PurchasedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<int>("StatusId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Code")
@@ -93,7 +101,30 @@ namespace Discounts.Infra.Migrations
 
                     b.HasIndex("OfferId");
 
+                    b.HasIndex("StatusId");
+
                     b.ToTable("Coupons", (string)null);
+                });
+
+            modelBuilder.Entity("Discounts.Domain.Entities.CouponStatus", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("CouponStatuses", (string)null);
                 });
 
             modelBuilder.Entity("Discounts.Domain.Entities.Offer", b =>
@@ -104,6 +135,9 @@ namespace Discounts.Infra.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime?>("ApprovedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
@@ -113,9 +147,15 @@ namespace Discounts.Infra.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("nvarchar(2000)");
 
+                    b.Property<DateTime?>("DisabledAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<decimal>("DiscountedPrice")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("EditableUntil")
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("ExpirationDate")
                         .HasColumnType("datetime2");
@@ -126,6 +166,13 @@ namespace Discounts.Infra.Migrations
                     b.Property<decimal>("OriginalPrice")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("RejectedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("RejectionReason")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<int>("RemainingQuantity")
                         .HasColumnType("int");
@@ -140,6 +187,9 @@ namespace Discounts.Infra.Migrations
                         .IsRequired()
                         .HasMaxLength(550)
                         .HasColumnType("nvarchar(550)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -240,6 +290,32 @@ namespace Discounts.Infra.Migrations
                     b.ToTable("Roles", (string)null);
                 });
 
+            modelBuilder.Entity("Discounts.Domain.Entities.SystemSettings", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("SettingValue")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Key")
+                        .IsUnique();
+
+                    b.ToTable("SystemSettings", (string)null);
+                });
+
             modelBuilder.Entity("Discounts.Domain.Entities.User", b =>
                 {
                     b.Property<int>("Id")
@@ -308,9 +384,17 @@ namespace Discounts.Infra.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Discounts.Domain.Entities.CouponStatus", "Status")
+                        .WithMany("Coupons")
+                        .HasForeignKey("StatusId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Customer");
 
                     b.Navigation("Offer");
+
+                    b.Navigation("Status");
                 });
 
             modelBuilder.Entity("Discounts.Domain.Entities.Offer", b =>
@@ -360,6 +444,11 @@ namespace Discounts.Infra.Migrations
                         .IsRequired();
 
                     b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("Discounts.Domain.Entities.CouponStatus", b =>
+                {
+                    b.Navigation("Coupons");
                 });
 
             modelBuilder.Entity("Discounts.Domain.Entities.OfferStatus", b =>

@@ -1,6 +1,6 @@
 using System.Linq.Expressions;
 using Discounts.Infra.Persistence;
-using Dsicounts.Application.Interfaces;
+using Discounts.Application.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Discounts.Infra.Repositories;

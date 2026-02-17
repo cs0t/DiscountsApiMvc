@@ -1,9 +1,0 @@
-using Discounts.Domain.Entities;
-
-namespace Dsicounts.Application.Interfaces.RepositoryContracts;
-
-public interface IUserRepository : IRepository<User>
-{
-    Task<User?> GetByEmailAsync(string email, CancellationToken ct = default);
-    Task<User?> GetWithRolesAsync(int id, CancellationToken ct = default);
-}

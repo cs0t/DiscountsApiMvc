@@ -12,7 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Application", "Application"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Domain", "Domain", "{98E199C8-9783-42BB-802D-CC0592A8F426}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dsicounts.Application", "Dsicounts.Application\Dsicounts.Application.csproj", "{FEFAE924-EC86-448F-BCA6-3A8D167E2C72}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Discounts.Application", "Discounts.Application\Discounts.Application.csproj", "{FEFAE924-EC86-448F-BCA6-3A8D167E2C72}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Discounts.Domain", "Discounts.Domain\Discounts.Domain.csproj", "{F3E7EF84-9B4B-4236-A28E-43CC912DFB2D}"
 EndProject

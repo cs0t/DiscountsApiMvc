@@ -15,6 +15,11 @@ public class CouponConfiguration : IEntityTypeConfiguration<Coupon>
             .HasMaxLength(11)
             .IsRequired();
         
+        builder.Property(c => c.PurchasedAt)
+            .HasColumnType("datetime2")
+            .HasDefaultValueSql("GETUTCDATE()")
+            .IsRequired();
+        
         builder.Property(c => c.ExpirationDate)
             .HasColumnType("datetime2")
             .IsRequired();
@@ -29,6 +34,11 @@ public class CouponConfiguration : IEntityTypeConfiguration<Coupon>
             .WithMany()
             .HasForeignKey(c => c.CustomerId)
             .OnDelete(DeleteBehavior.Cascade);
+        
+        builder.HasOne(c => c.Status)
+            .WithMany(s => s.Coupons)
+            .HasForeignKey(c => c.StatusId)
+            .OnDelete(DeleteBehavior.Restrict);
         
         //indexes
         builder.HasIndex(c => c.Code).IsUnique();

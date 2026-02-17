@@ -15,6 +15,9 @@ public class ApplicationDbContext : DbContext
     public DbSet<Offer> Offers { get; set; } = null!;
     public DbSet<OfferStatus> OfferStatuses { get; set; } = null!;
     public DbSet<Reservation> Reservations { get; set; } = null!;
+    public DbSet<SystemSettings> SystemSettings { get; set; } = null!;
+    
+    public DbSet<CouponStatus> CouponStatuses { get; set; } = null!;
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

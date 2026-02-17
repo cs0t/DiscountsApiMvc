@@ -4,10 +4,14 @@
         <TargetFramework>net8.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
-        <LangVersion>10</LangVersion>
+        <LangVersion>12</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="FluentValidation" Version="12.1.1" />
+        <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
+        <PackageReference Include="Mapster" Version="7.4.0" />
+        <PackageReference Include="Mapster.DependencyInjection" Version="1.0.1" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.24">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -16,13 +20,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Controllers\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\Discounts.Domain\Discounts.Domain.csproj" />
       <ProjectReference Include="..\Discounts.Infra\Discounts.Infra.csproj" />
-      <ProjectReference Include="..\Dsicounts.Application\Dsicounts.Application.csproj" />
+      <ProjectReference Include="..\Discounts.Application\Discounts.Application.csproj" />
     </ItemGroup>
 
 </Project>
