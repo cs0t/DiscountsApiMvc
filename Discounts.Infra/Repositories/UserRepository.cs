@@ -17,6 +17,14 @@ public class UserRepository : Repository<User>, IUserRepository
         return await _context.Users.Include(u=>u.Role).FirstAsync(u => u.Id == entity.Id, ct);
     }
     
+    public async Task<User> UpdateAndReturnAsync(User entity, CancellationToken ct = default)
+    {
+        base.Update(entity);
+        await base.SaveChangesAsync(ct);
+        
+        return await _context.Users.Include(u=>u.Role).FirstAsync(u => u.Id == entity.Id, ct);
+    }
+    
     public Task<User?> GetByEmailAsync(string email, CancellationToken ct = default)
     {
         return _context.Users.Include(u=>u.Role).FirstOrDefaultAsync(u => u.Email == email, ct);

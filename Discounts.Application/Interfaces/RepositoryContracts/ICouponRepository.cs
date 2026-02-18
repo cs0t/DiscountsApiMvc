@@ -4,6 +4,8 @@ namespace Discounts.Application.Interfaces.RepositoryContracts;
 
 public interface ICouponRepository : IRepository<Coupon>
 {
+    Task<Coupon> AddAndReturnAsync(Coupon entity, CancellationToken ct = default);
+    Task<Coupon> UpdateAndReturnAsync(Coupon entity, CancellationToken ct = default);
     Task<Coupon?> GetByCodeAsync(string code, CancellationToken ct = default);
     Task<List<Coupon>> GetByCustomerIdAsync(int customerId,CancellationToken ct = default);
     Task<List<Coupon>> GetByOfferIdAsync(int offerId, CancellationToken ct = default);

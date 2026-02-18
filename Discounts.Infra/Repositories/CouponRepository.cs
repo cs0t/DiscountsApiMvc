@@ -11,6 +11,30 @@ public class CouponRepository : Repository<Coupon>,ICouponRepository
     public CouponRepository(ApplicationDbContext dbContext) : base(dbContext)
     {
     }
+    
+    public async Task<Coupon> AddAndReturnAsync(Coupon entity, CancellationToken ct = default)
+    {
+        await base.Add(entity,ct);
+        await base.SaveChangesAsync(ct);
+        
+        return await _context.Coupons
+            .Include(o => o.Offer)
+            .Include(o => o.Status)
+            .Include(o => o.Customer)
+            .FirstAsync(c => c.Id == entity.Id, ct);
+    }
+    
+    public async Task<Coupon> UpdateAndReturnAsync(Coupon entity, CancellationToken ct = default)
+    {
+        base.Update(entity);
+        await base.SaveChangesAsync(ct);
+        
+        return await _context.Coupons
+            .Include(o => o.Offer)
+            .Include(o => o.Status)
+            .Include(o => o.Customer)
+            .FirstAsync(c => c.Id == entity.Id, ct);
+    }
 
     public Task<Coupon?> GetByCodeAsync(string code, CancellationToken ct = default)
     {
@@ -39,6 +63,8 @@ public class CouponRepository : Repository<Coupon>,ICouponRepository
     {
         return _context.Coupons
             .AsNoTracking()
+            .Include(c => c.Customer)
+            .Include(c => c.Offer)
             .Include(c => c.Status)
             .Where(c => c.Offer.SellerId == sellerId).ToListAsync(ct);
     }

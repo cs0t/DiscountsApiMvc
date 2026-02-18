@@ -65,6 +65,7 @@ public class SystemSettingsService : ISystemSettingsService
             SettingValue = value
         };
         await _systemSettingsRepository.Add(newSetting, ct);
+        await _systemSettingsRepository.SaveChangesAsync(ct);
         return newSetting.Id;
     }
 }

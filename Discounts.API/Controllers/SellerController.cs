@@ -40,7 +40,7 @@ public class SellerController : ControllerBase
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var offer = await _offerManagementService.CreateOfferAsync(command, userId,ct);
         var offerdto = _mapper.Map<OfferDetailsDto>(offer);
-        return CreatedAtAction(nameof(GetOfferById), new { id = offer.Id }, offerdto);
+        return CreatedAtAction(nameof(GetOfferById), new { offerId = offer.Id }, offerdto);
     }
     
     [HttpPut]
@@ -54,7 +54,7 @@ public class SellerController : ControllerBase
         return Ok(_mapper.Map<OfferDetailsDto>(offer));
     }
     
-    [HttpPut("disable/{offerId}")]
+    [HttpPut("disable/{offerId:int}")]
     public async Task<IActionResult> DisableOffer(int offerId, CancellationToken ct = default)
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -79,7 +79,7 @@ public class SellerController : ControllerBase
         return Ok(res);
     }
 
-    [HttpGet("get-offer/{offerId}")]
+    [HttpGet("get-offer/{offerId:int}")]
     public async Task<IActionResult> GetOfferById(int offerId, CancellationToken ct = default)
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);

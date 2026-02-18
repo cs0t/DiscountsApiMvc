@@ -46,12 +46,15 @@ public class OfferManagementService : IOfferManagementService
             throw new UnauthorizedException("User is not authorized to create offers.");
         }
         //validate categories
+        var categories = new List<Category>();
         foreach (var categoryId in offerCommand.CategoryIds)
         {
-            if(!await _categoryRepository.ExistsAsync(cat => cat.Id == categoryId, ct))
+            var category = await _categoryRepository.GetById(categoryId, ct);
+            if(category is null)
             {
                 throw new CategoryNotFoundException($"Category with id {categoryId} not found !");
             }
+            categories.Add(category);   
         }
         
         var now = DateTime.UtcNow;
@@ -73,13 +76,11 @@ public class OfferManagementService : IOfferManagementService
             MaxQuantity = offerCommand.MaxQuantity,
             RemainingQuantity = offerCommand.MaxQuantity,
             ExpirationDate = offerCommand.ExpirationDate,
-            Categories = offerCommand.CategoryIds.Select(id => new Category { Id = id }).ToList()
+            Categories = categories
         };
         
-        //await _categoryRepository.AttachCategoriesByIdsAsync(offer.Categories.Select(c => c.Id).ToList(), ct);
-        await _offerRepository.Add(offer, ct);
-        await _offerRepository.SaveChangesAsync(ct);
-        return offer;
+        var createdOffer = await _offerRepository.AddAndReturnAsync(offer, ct);
+        return createdOffer;
     }
 
     public async Task<Offer> UpdateOfferAsync(UpdateOfferCommand offerCommand, int sellerId, CancellationToken ct = default)
@@ -110,6 +111,19 @@ public class OfferManagementService : IOfferManagementService
             throw new ForbiddenException("Offer can no longer be edited !");
         }
 
+        var categories = await _categoryRepository
+            .GetByPredicateAsync(c => offerCommand.CategoryIds.Contains(c.Id), ct);
+        
+        if(categories.Count != offerCommand.CategoryIds.Count)
+        {
+            throw new CategoryNotFoundException("One or more categories were not found !");
+        }
+        
+        existingOffer.Categories.Clear();
+        foreach (var category in categories)
+        {
+            existingOffer.Categories.Add(category);
+        }
         //update offer
         existingOffer.Title = offerCommand.Title;
         existingOffer.Description = offerCommand.Description;
@@ -118,7 +132,6 @@ public class OfferManagementService : IOfferManagementService
         existingOffer.MaxQuantity = offerCommand.MaxQuantity;
         existingOffer.RemainingQuantity = offerCommand.RemainingQuantity;
         existingOffer.ExpirationDate = offerCommand.ExpirationDate;
-        existingOffer.Categories = offerCommand.CategoryIds.Select(id => new Category { Id = id }).ToList();
 
         if (existingOffer.StatusId == (int)OfferStatusesEnum.Approved)
         {
@@ -128,8 +141,9 @@ public class OfferManagementService : IOfferManagementService
 
         existingOffer.UpdatedAt = dateNow;
         
-        _offerRepository.Update(existingOffer);
+        //_offerRepository.Update(existingOffer);
         await _offerRepository.SaveChangesAsync(ct);
+        //var updateRes = await _offerRepository.UpdateAndReturnAsync(existingOffer, ct);
         return existingOffer;
     }
 
@@ -152,13 +166,13 @@ public class OfferManagementService : IOfferManagementService
         
         existingOffer.StatusId = (int)OfferStatusesEnum.Disabled;
         existingOffer.DisabledAt = DateTime.UtcNow;
-        _offerRepository.Update(existingOffer);
+        //_offerRepository.Update(existingOffer);
         await _offerRepository.SaveChangesAsync(ct);
     }
 
     
 
-    public async Task<PagedResult<Offer>> GetMerchantOffersAsync(OfferListQuery query, int sellerId, CancellationToken ct = default)
+    public async Task<PagedResult<Offer>> GetSellerOffersAsync(OfferListQuery query, int sellerId, CancellationToken ct = default)
     {
         //check if user is authorized to view offers
         var seller = await _userRepository.GetWithRolesAsync(sellerId, ct);

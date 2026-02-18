@@ -6,6 +6,8 @@ namespace Discounts.Application.Interfaces.RepositoryContracts;
 
 public interface IOfferRepository : IRepository<Offer>
 {
+    Task<Offer> AddAndReturnAsync(Offer entity, CancellationToken ct = default);
+    Task<Offer> UpdateAndReturnAsync(Offer entity, CancellationToken ct = default);
     Task<Offer?> GetWithDetailsByIdAsync(int offerId, CancellationToken ct = default);
     Task<List<Offer>> GetApprovedActiveOffersAsync(CancellationToken ct = default);
     Task<PagedResult<Offer>> GetBySellerAsync(OfferListQuery query, int sellerId, CancellationToken ct = default);

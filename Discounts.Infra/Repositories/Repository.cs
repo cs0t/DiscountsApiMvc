@@ -30,9 +30,15 @@ public abstract class Repository<T> : IRepository<T> where T : class
 
     public virtual void Delete(T entity) => _dbSet.Remove(entity);
 
-    public Task<bool> ExistsAsync(Expression<Func<T, bool>> pred, CancellationToken ct = default)
+    public virtual Task<bool> ExistsAsync(Expression<Func<T, bool>> pred, CancellationToken ct = default)
     {
         return _dbSet.AsNoTracking().AnyAsync(pred, ct);
+    }
+
+    public virtual Task<List<T>> GetByPredicateAsync(Expression<Func<T, bool>> func,
+        CancellationToken ct = default)
+    {
+        return _dbSet.Where(func).ToListAsync(ct);
     }
 
     public virtual async Task SaveChangesAsync(CancellationToken ct = default) =>  await _context.SaveChangesAsync(ct);

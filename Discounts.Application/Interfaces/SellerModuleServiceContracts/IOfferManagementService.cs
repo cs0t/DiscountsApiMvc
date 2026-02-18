@@ -13,7 +13,7 @@ public interface IOfferManagementService
 
     Task DisableOfferAsync(int offerId, int sellerId, CancellationToken ct = default);
 
-    Task<PagedResult<Offer>> GetMerchantOffersAsync(OfferListQuery query, int sellerId, CancellationToken ct = default);
+    Task<PagedResult<Offer>> GetSellerOffersAsync(OfferListQuery query, int sellerId, CancellationToken ct = default);
     
     Task<Offer> GetOfferDetailsAsync(int offerId, int sellerId, CancellationToken ct = default);
 }

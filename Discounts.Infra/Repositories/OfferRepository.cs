@@ -13,11 +13,34 @@ public class OfferRepository : Repository<Offer>, IOfferRepository
     public OfferRepository(ApplicationDbContext dbContext) : base(dbContext)
     {
     }
-
+    
+    public async Task<Offer> AddAndReturnAsync(Offer entity, CancellationToken ct = default)
+    {
+        await base.Add(entity,ct);
+        await base.SaveChangesAsync(ct);
+        
+        return await _context.Offers
+            .Include(o => o.Categories)
+            .Include(o => o.Status)
+            .Include(o => o.Seller)
+            .FirstAsync(u => u.Id == entity.Id, ct);
+    }
+    
+    public async Task<Offer> UpdateAndReturnAsync(Offer entity, CancellationToken ct = default)
+    {
+        base.Update(entity);
+        await base.SaveChangesAsync(ct);
+        
+        return await _context.Offers
+            .Include(o => o.Categories)
+            .Include(o => o.Status)
+            .Include(o => o.Seller)
+            .FirstAsync(u => u.Id == entity.Id, ct);
+    }
+    
     public Task<Offer?> GetWithDetailsByIdAsync(int offerId, CancellationToken ct = default)
     {
         return _context.Offers
-            .AsNoTracking()
             .Include(o => o.Categories)
             .Include(o => o.Status)
             .Include(o => o.Seller)

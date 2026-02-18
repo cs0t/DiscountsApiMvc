@@ -9,5 +9,6 @@ public interface IRepository<T> where T : class
     void Update(T entity);
     void Delete(T entity);
     Task<bool> ExistsAsync(Expression<Func<T,bool>> pred, CancellationToken ct = default);
+    Task<List<T>> GetByPredicateAsync(Expression<Func<T, bool>> func, CancellationToken ct = default);
     Task SaveChangesAsync(CancellationToken ct = default);
 }

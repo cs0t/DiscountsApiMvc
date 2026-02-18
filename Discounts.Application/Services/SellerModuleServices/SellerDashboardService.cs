@@ -37,30 +37,30 @@ public class SellerDashboardService : ISellerDashboardService
             throw new ForbiddenException("User does not have permission to view this dashboard !");
         } 
         
-        var totalOffers = _offerRepository
+        var totalOffers = await _offerRepository
             .GetOfferCountBySellerAndStatusAsync(sellerId,null,ct);
-        var approvedOffers = _offerRepository
+        var approvedOffers = await _offerRepository
             .GetOfferCountBySellerAndStatusAsync(sellerId,(int)OfferStatusesEnum.Approved,ct);
-        var pendingOffers = _offerRepository
+        var pendingOffers = await _offerRepository
             .GetOfferCountBySellerAndStatusAsync(sellerId,(int)OfferStatusesEnum.Pending,ct);
-        var expiredOffers = _offerRepository
+        var expiredOffers = await _offerRepository
             .GetOfferCountBySellerAndStatusAsync(sellerId, (int)OfferStatusesEnum.Expired, ct);
-        var totalCouponsSold = _couponRepository.GetCouponCountForSellerAsync(sellerId, ct);
+        var totalCouponsSold = await _couponRepository.GetCouponCountForSellerAsync(sellerId, ct);
         
-        var totalIncome = _couponRepository.GetTotalIncomeFromCouponsForSellerAsync(sellerId, ct);
+        var totalIncome =await  _couponRepository.GetTotalIncomeFromCouponsForSellerAsync(sellerId, ct);
         
-        await Task.WhenAll(totalOffers, approvedOffers, 
-            pendingOffers, expiredOffers, 
-            totalCouponsSold,totalIncome);
+        // await Task.WhenAll(totalOffers, approvedOffers, 
+        //     pendingOffers, expiredOffers, 
+        //     totalCouponsSold,totalIncome);
         
         return new SellerDashboardStats
         {
-            TotalOffers = totalOffers.Result,
-            ApprovedOffers = approvedOffers.Result,
-            PendingOffers = pendingOffers.Result,
-            ExpiredOffers = expiredOffers.Result,
-            TotalCouponsSold = totalCouponsSold.Result,
-            TotalIncome = totalIncome.Result
+            TotalOffers = totalOffers,
+            ApprovedOffers = approvedOffers,
+            PendingOffers = pendingOffers,
+            ExpiredOffers = expiredOffers,
+            TotalCouponsSold = totalCouponsSold,
+            TotalIncome = totalIncome
         };
     }
 }

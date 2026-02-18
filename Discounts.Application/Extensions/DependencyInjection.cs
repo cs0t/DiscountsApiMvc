@@ -14,6 +14,7 @@ public static class DependencyInjection
     {
         services.AddScoped<ISellerDashboardService, SellerDashboardService>();
         services.AddScoped<IOfferManagementService, OfferManagementService>();
+        services.AddScoped<ISellerSalesService, SellerSalesService>();
         services.AddScoped<ISystemSettingsService, SystemSettingsService>();
         services.AddScoped<IAuthService, AuthService>();
         return services;
