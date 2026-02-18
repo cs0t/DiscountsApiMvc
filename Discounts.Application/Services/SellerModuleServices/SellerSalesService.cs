@@ -1,3 +1,5 @@
+using Discounts.Application.Exceptions;
+using Discounts.Application.Exceptions.UserExceptions;
 using Discounts.Application.Interfaces.RepositoryContracts;
 using Discounts.Application.Interfaces.SellerModuleServiceContracts;
 using Discounts.Application.Models;
@@ -22,9 +24,13 @@ public class SellerSalesService : ISellerSalesService
     public async Task<List<Coupon>> GetSalesHistoryAsync(int sellerId, CancellationToken ct = default)
     {
         var seller = await _userRepository.GetWithRolesAsync(sellerId, ct);
-        if (seller is null || seller.RoleId != (int)RoleEnum.Seller)
+        if (seller is null)
         {
-            throw new UnauthorizedAccessException("User is not authorized to view sales history !");
+            throw new UserNotFoundException($"User with id {sellerId} not found !");
+        }
+        if (seller.RoleId != (int)RoleEnum.Seller)
+        {
+            throw new ForbiddenException("User does not have permission to view sales history !");
         } 
         return await _couponRepository.GetBySellerIdAsync(sellerId, ct);
     }

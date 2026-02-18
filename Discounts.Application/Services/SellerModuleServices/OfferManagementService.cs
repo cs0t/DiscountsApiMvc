@@ -32,7 +32,7 @@ public class OfferManagementService : IOfferManagementService
         _systemSettingsService = systemSettingsService;
     }
 
-    public async Task<int?> CreateOfferAsync(CreateOfferCommand offerCommand, int sellerId, CancellationToken ct = default)
+    public async Task<Offer> CreateOfferAsync(CreateOfferCommand offerCommand, int sellerId, CancellationToken ct = default)
     {
         //check if user is authorized to create offer
         if (!await _userRepository.ExistsAsync(u => u.Id == sellerId, ct))
@@ -79,10 +79,10 @@ public class OfferManagementService : IOfferManagementService
         //await _categoryRepository.AttachCategoriesByIdsAsync(offer.Categories.Select(c => c.Id).ToList(), ct);
         await _offerRepository.Add(offer, ct);
         await _offerRepository.SaveChangesAsync(ct);
-        return offer.Id;
+        return offer;
     }
 
-    public async Task UpdateOfferAsync(UpdateOfferCommand offerCommand, int sellerId, CancellationToken ct = default)
+    public async Task<Offer> UpdateOfferAsync(UpdateOfferCommand offerCommand, int sellerId, CancellationToken ct = default)
     {
         var existingOffer = await _offerRepository.GetWithDetailsByIdAsync(offerCommand.OfferId, ct);
         if (existingOffer is null)
@@ -93,7 +93,7 @@ public class OfferManagementService : IOfferManagementService
         //check ownership
         if (existingOffer.SellerId != sellerId)
         {
-            throw new UnauthorizedException("User is not authorized to update this offer.");
+            throw new ForbiddenException("User is not authorized to update this offer.");
         }
 
         //check statuses
@@ -130,6 +130,7 @@ public class OfferManagementService : IOfferManagementService
         
         _offerRepository.Update(existingOffer);
         await _offerRepository.SaveChangesAsync(ct);
+        return existingOffer;
     }
 
     public async Task DisableOfferAsync(int offerId, int sellerId, CancellationToken ct = default)
@@ -142,7 +143,7 @@ public class OfferManagementService : IOfferManagementService
         
         if (existingOffer.SellerId != sellerId)
         {
-            throw new UnauthorizedException("User is not authorized to disable this offer.");
+            throw new ForbiddenException("User is not authorized to disable this offer.");
         }
 
         if (existingOffer.StatusId == (int)OfferStatusesEnum.Expired ||
@@ -160,12 +161,35 @@ public class OfferManagementService : IOfferManagementService
     public async Task<PagedResult<Offer>> GetMerchantOffersAsync(OfferListQuery query, int sellerId, CancellationToken ct = default)
     {
         //check if user is authorized to view offers
-        var existingUser = await _userRepository.GetWithRolesAsync(sellerId, ct);
-        if (existingUser is null || existingUser.Role.Id != (int)RoleEnum.Seller)
+        var seller = await _userRepository.GetWithRolesAsync(sellerId, ct);
+        if (seller is null)
         {
-            throw new UnauthorizedException("User is not authorized to view offers !");
+            throw new UserNotFoundException($"User with id {sellerId} not found !");
         }
+        if (seller.RoleId != (int)RoleEnum.Seller)
+        {
+            throw new ForbiddenException("User does not have permission to view these Offers !");
+        } 
         
         return await _offerRepository.GetBySellerAsync(query, sellerId, ct);
+    }
+
+    public async Task<Offer> GetOfferDetailsAsync(int offerId, int sellerId, CancellationToken ct = default)
+    {
+        var user = await _userRepository.GetWithRolesAsync(sellerId, ct);
+        if (user is null)        
+            throw new UserNotFoundException($"User with id {sellerId} not found !"); 
+        
+        if(user.RoleId != (int)RoleEnum.Seller)    
+            throw new ForbiddenException("User does not have permission to view this offer !");
+        
+        var offer = await _offerRepository.GetWithDetailsByIdAsync(offerId, ct);
+        if (offer is null)
+            throw new OfferNotFoundException($"Offer with id {offerId} not found !");
+        
+        if (offer.SellerId != sellerId)
+            throw new ForbiddenException("User does not have permission to view this offer !");
+        
+        return offer;
     }
 }

@@ -1,3 +1,4 @@
+using Discounts.Application.Exceptions;
 using Discounts.Application.Exceptions.UserExceptions;
 using Discounts.Application.Interfaces.RepositoryContracts;
 using Discounts.Application.Interfaces.SellerModuleServiceContracts;
@@ -27,10 +28,14 @@ public class SellerDashboardService : ISellerDashboardService
         //fetch seller
         var seller = await _userRepository.GetWithRolesAsync(sellerId, ct);
         
-        if (seller is null || seller.Role.Id != (int)RoleEnum.Seller)
+        if (seller is null)
         {
-            throw new UnauthorizedException("User is not authorized to view this dashboard !");
+            throw new UserNotFoundException($"User with id {sellerId} not found !");
         }
+        if (seller.RoleId != (int)RoleEnum.Seller)
+        {
+            throw new ForbiddenException("User does not have permission to view this dashboard !");
+        } 
         
         var totalOffers = _offerRepository
             .GetOfferCountBySellerAndStatusAsync(sellerId,null,ct);

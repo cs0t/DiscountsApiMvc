@@ -1,3 +1,4 @@
+using Discounts.Application.Exceptions;
 using Discounts.Application.Exceptions.SystemSettingsExceptions;
 using Discounts.Application.Exceptions.UserExceptions;
 using Discounts.Application.Interfaces.RepositoryContracts;
@@ -34,9 +35,13 @@ public class SystemSettingsService : ISystemSettingsService
     public async Task UpdateSettingAsync(int userid, string key, string value, CancellationToken ct = default)
     {
         var user  = await _userRepository.GetWithRolesAsync(userid, ct);
-        if (user is null || user.RoleId != (int)RoleEnum.Administrator)
+        if (user is null)
         {
-            throw new UnauthorizedException("User is not authorized to update system settings !");
+            throw new UserNotFoundException($"User with id {userid} not found !");
+        }
+        if (user.RoleId != (int)RoleEnum.Administrator)
+        {
+            throw new ForbiddenException("User does not have permission to update system settings !");
         }
         await _systemSettingsRepository.UpdateSettingAsync(key, value, ct);
     }
@@ -44,10 +49,16 @@ public class SystemSettingsService : ISystemSettingsService
     public async Task<int> CreateSettingAsync(int userid, string key, string value, CancellationToken ct = default)
     {
         var user  = await _userRepository.GetWithRolesAsync(userid, ct);
-        if (user is null || user.RoleId != (int)RoleEnum.Administrator)
+        if (user is null)
         {
-            throw new UnauthorizedException("User is not authorized to update system settings !");
+            throw new UserNotFoundException($"User with id {userid} not found !");
         }
+
+        if (user.RoleId != (int)RoleEnum.Administrator)
+        {
+            throw new ForbiddenException("User does not have permission to create system settings !");
+        }
+        
         var newSetting = new SystemSettings
         {
             Key = key,
