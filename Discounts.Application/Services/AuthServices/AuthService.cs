@@ -52,15 +52,14 @@ public class AuthService : IAuthService
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(registerCommand.Password),
             RoleId = (int)RoleEnum.Customer
         };
-        
-        await _userRepository.Add(user, ct);
-        await _userRepository.SaveChangesAsync(ct);
-        return _jwtService.GenerateToken(user);
+
+        var userInserted = await _userRepository.AddAndReturnAsync(user, ct); 
+        return _jwtService.GenerateToken(userInserted);
     }
 
     public async Task<UserDto> GetCurrentUserAsync(int userId, CancellationToken ct = default)
     {
-        var user = await _userRepository.GetById(userId, ct);
+        var user = await _userRepository.GetWithRolesAsync(userId, ct);
         
         if (user is null)
             throw new UserNotFoundException("User not found !");

@@ -8,15 +8,18 @@ namespace Discounts.API.Middleware;
 public class ErrorResponse:ProblemDetails
 {
     public string? TraceId { get; set; }
+    public string? StackTrace { get; set; }
 }
 
 public class GlobalExceptionHandlerMiddleware
 {
     private readonly RequestDelegate _next;
+    private readonly ILogger<GlobalExceptionHandlerMiddleware> _logger;
     
-    public GlobalExceptionHandlerMiddleware(RequestDelegate next)
+    public GlobalExceptionHandlerMiddleware(RequestDelegate next, ILogger<GlobalExceptionHandlerMiddleware> logger)
     {
         _next = next;
+        _logger = logger;
     }
     
     public async Task InvokeAsync(HttpContext context)
@@ -33,6 +36,8 @@ public class GlobalExceptionHandlerMiddleware
 
     private Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
+        _logger.LogError(exception, "An unhandled exception occurred while processing the request.");
+       
         var (status, title) = exception switch
         {
             NotFoundException _ => (StatusCodes.Status404NotFound, "Not Found !"),
@@ -51,6 +56,7 @@ public class GlobalExceptionHandlerMiddleware
             Detail = exception.Message,
             Instance = context.Request.Path,
             TraceId = context.TraceIdentifier,
+            StackTrace = exception.StackTrace
         };
         
         context.Response.StatusCode = status;

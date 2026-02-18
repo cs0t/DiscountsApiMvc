@@ -233,7 +233,7 @@ namespace Discounts.Infra.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("CancelledAt")
+                    b.Property<DateTime?>("CancelledAt")
                         .HasColumnType("datetime2");
 
                     b.Property<bool>("IsActive")
@@ -251,8 +251,6 @@ namespace Discounts.Infra.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CancelledAt");
 
                     b.HasIndex("ReservedAt");
 

@@ -32,6 +32,6 @@ public class ReservationConfiguration : IEntityTypeConfiguration<Reservation>
         //indexes
         builder.HasIndex(r => new { r.OfferId, r.UserId }).IsUnique().HasFilter("[CancelledAt] IS NULL");
         builder.HasIndex(r => r.ReservedAt);
-        builder.HasIndex(r => r.CancelledAt);
+        //builder.HasIndex(r => r.CancelledAt);
     }
 }

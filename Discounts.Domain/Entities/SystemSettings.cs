@@ -6,5 +6,5 @@ public class SystemSettings
     //public int ReservationTimeLimitInHours { get; set; }
     public int Id { get; set; }
     public string Key { get; set; } = null!;
-    public string SettingValue { get; set; }
+    public string SettingValue { get; set; } = null!;
 }

@@ -4,9 +4,12 @@ using Discounts.API.Middleware;
 using Discounts.Infra.Extensions;
 using Discounts.Application.Extensions;
 using Discounts.Application.Validators.Offers;
+using Discounts.Infra.Persistence;
+using Discounts.Infra.Persistence.Seeding;
 using Discounts.Infra.Security;
 using FluentValidation;
 using Mapster;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -50,5 +53,22 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+//run seeding
+var scope = app.Services.CreateScope();
+var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+await context.Database.MigrateAsync();
+var transaction  = await context.Database.BeginTransactionAsync();
+try
+{
+    await SeedDataGenerator.SeedAsync(context: context);
+    await transaction.CommitAsync();
+}
+catch
+{
+    await transaction.RollbackAsync();
+    throw;
+}
+
 
 app.Run();

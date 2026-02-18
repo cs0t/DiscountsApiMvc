@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Discounts.Infra.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -23,6 +23,19 @@ namespace Discounts.Infra.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Categories", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CouponStatuses",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CouponStatuses", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -50,6 +63,20 @@ namespace Discounts.Infra.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Roles", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SystemSettings",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Key = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    SettingValue = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SystemSettings", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -89,6 +116,12 @@ namespace Discounts.Infra.Migrations
                     StatusId = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "getutcdate()"),
                     ExpirationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ApprovedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    RejectedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DisabledAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    RejectionReason = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    EditableUntil = table.Column<DateTime>(type: "datetime2", nullable: true),
                     SellerId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -117,11 +150,19 @@ namespace Discounts.Infra.Migrations
                     Code = table.Column<string>(type: "nvarchar(11)", maxLength: 11, nullable: false),
                     OfferId = table.Column<int>(type: "int", nullable: false),
                     CustomerId = table.Column<int>(type: "int", nullable: false),
+                    StatusId = table.Column<int>(type: "int", nullable: false),
+                    PurchasedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
                     ExpirationDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Coupons", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Coupons_CouponStatuses_StatusId",
+                        column: x => x.StatusId,
+                        principalTable: "CouponStatuses",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Coupons_Offers_OfferId",
                         column: x => x.OfferId,
@@ -169,7 +210,7 @@ namespace Discounts.Infra.Migrations
                     UserId = table.Column<int>(type: "int", nullable: false),
                     OfferId = table.Column<int>(type: "int", nullable: false),
                     ReservedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
-                    CancelledAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CancelledAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     IsActive = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
@@ -210,6 +251,17 @@ namespace Discounts.Infra.Migrations
                 column: "OfferId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Coupons_StatusId",
+                table: "Coupons",
+                column: "StatusId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CouponStatuses_Name",
+                table: "CouponStatuses",
+                column: "Name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_OfferCategories_OffersId",
                 table: "OfferCategories",
                 column: "OffersId");
@@ -241,11 +293,6 @@ namespace Discounts.Infra.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Reservations_CancelledAt",
-                table: "Reservations",
-                column: "CancelledAt");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Reservations_OfferId_UserId",
                 table: "Reservations",
                 columns: new[] { "OfferId", "UserId" },
@@ -266,6 +313,12 @@ namespace Discounts.Infra.Migrations
                 name: "IX_Roles_Name",
                 table: "Roles",
                 column: "Name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SystemSettings_Key",
+                table: "SystemSettings",
+                column: "Key",
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -297,6 +350,12 @@ namespace Discounts.Infra.Migrations
 
             migrationBuilder.DropTable(
                 name: "Reservations");
+
+            migrationBuilder.DropTable(
+                name: "SystemSettings");
+
+            migrationBuilder.DropTable(
+                name: "CouponStatuses");
 
             migrationBuilder.DropTable(
                 name: "Categories");
