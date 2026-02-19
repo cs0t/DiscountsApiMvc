@@ -7,4 +7,6 @@ public interface IReservationRepository : IRepository<Reservation>
     public Task<List<Reservation>> GetActiveReservationsAsync(CancellationToken ct = default);
     public Task<List<Reservation>> GetReservationsByUserIdAsync(int userId, CancellationToken ct = default);
     public Task<List<Reservation>> GetActiveReservationsByOfferIdAsync(int offerId, CancellationToken ct = default);
+    public Task<Reservation?> GetActiveReservationByUserIdAndOfferIdAsync(int userId, int offerId, CancellationToken ct = default);
+    //public Task CancelReservationAsync(Reservation reservation, CancellationToken ct = default);
 }

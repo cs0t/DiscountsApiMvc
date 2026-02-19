@@ -2,6 +2,7 @@ using Discounts.Domain.Entities;
 using Discounts.Infra.Persistence;
 using Discounts.Application.Interfaces;
 using Discounts.Application.Interfaces.RepositoryContracts;
+using Discounts.Application.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Discounts.Infra.Repositories;
@@ -41,13 +42,28 @@ public class CouponRepository : Repository<Coupon>,ICouponRepository
         return _context.Coupons.Where(c => c.Code == code).FirstOrDefaultAsync(ct);
     }
 
-    public Task<List<Coupon>> GetByCustomerIdAsync(int customerId, CancellationToken ct = default)
+    public async Task<PagedResult<Coupon>> GetByCustomerIdPagedAsync(int customerId, int page = 1, int pageSize = 8,CancellationToken ct = default)
     {
-        return _context.Coupons
+        page = Math.Max(page, 1);
+        pageSize = Math.Clamp(pageSize, 1, 12);
+
+        var query = _context.Coupons
             .AsNoTracking()
+            .Where(c => c.CustomerId == customerId);
+        
+        var totalCount = await query.CountAsync(ct);
+        
+        query =  query
             .Include(c => c.Customer)
             .Include(c => c.Offer)
-            .Where(c => c.CustomerId == customerId).ToListAsync(ct);
+            .Include(c => c.Status)
+            .OrderByDescending(c => c.PurchasedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize);
+        
+        var pagedList = await query.ToListAsync(ct);
+
+        return new PagedResult<Coupon>(pagedList, totalCount, page, pageSize );
     }
 
     public Task<List<Coupon>> GetByOfferIdAsync(int offerId, CancellationToken ct = default)

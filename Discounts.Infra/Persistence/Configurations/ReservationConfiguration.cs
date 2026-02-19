@@ -18,6 +18,9 @@ public class ReservationConfiguration : IEntityTypeConfiguration<Reservation>
         builder.Property(r => r.CancelledAt)
             .HasColumnType("datetime2");
         
+        builder.Property(r => r.ValidUntil)
+            .HasColumnType("datetime2");
+        
         //relations
         builder.HasOne(r => r.Offer)
             .WithMany()

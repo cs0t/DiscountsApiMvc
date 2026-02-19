@@ -21,7 +21,8 @@ public static class SeedDataGenerator
         context.Roles.AddRange(
             new Domain.Entities.Role {  Name = "Admin" },
             new Domain.Entities.Role {  Name = "Seller" },
-            new Domain.Entities.Role {  Name = "Customer" }
+            new Domain.Entities.Role {  Name = "Customer" },
+            new Domain.Entities.Role {  Name = "Blocked" }
         );
         
         await context.SaveChangesAsync(ct);

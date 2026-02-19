@@ -47,16 +47,47 @@ public class OfferRepository : Repository<Offer>, IOfferRepository
             .FirstOrDefaultAsync(o => o.Id == offerId, ct);
     }
 
-    public Task<List<Offer>> GetApprovedActiveOffersAsync(CancellationToken ct = default)
+    public async Task<PagedResult<Offer>> GetApprovedActiveOffersAsync(OfferListQuery query,CancellationToken ct = default)
     {
+        var pageSize = query.PageSize is < 1 or > 20 ? 10 : query.PageSize;
+        var pageNumber = query.PageNumber < 1 ? 1 : query.PageNumber;
         var dateNow = DateTime.UtcNow;
-        return _context.Offers
+
+        var buildQuery = _context.Offers
             .AsNoTracking()
-            .Where(o=>o.StatusId == (int)OfferStatusesEnum.Approved && o.ExpirationDate > dateNow)
+            .Where(o => 
+                o.StatusId == (int)OfferStatusesEnum.Approved 
+                && o.ExpirationDate > dateNow);
+
+        if (query.PriceStart is not null)
+        {
+            var priceStart = Math.Max(1.0M, query.PriceStart.Value);
+            buildQuery = buildQuery.Where(o => o.DiscountedPrice >= priceStart);
+        }
+        
+        if (query.PriceEnd is not null)
+        {
+            var priceEnd = Math.Max(1.0M, query.PriceEnd.Value);
+            buildQuery = buildQuery.Where(o => o.DiscountedPrice <= priceEnd);
+        }
+        
+        if(query.CategoryIds is not null && query.CategoryIds.Count > 0)
+        {
+            buildQuery = buildQuery.Where(o => o.Categories.Any(c => query.CategoryIds.Contains(c.Id)));
+        }
+        
+        var totalCount = await buildQuery.CountAsync(ct);
+        
+        var paged = await buildQuery
             .Include(o => o.Categories)
             .Include(o => o.Status)
             .Include(o => o.Seller)
+            .OrderByDescending(o => o.CreatedAt)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
             .ToListAsync(ct);
+
+        return new PagedResult<Offer>(paged,totalCount,pageNumber,pageSize);
     }
 
     public async Task<PagedResult<Offer>> GetBySellerAsync(OfferListQuery query, int sellerId, CancellationToken ct = default)

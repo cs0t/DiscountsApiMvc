@@ -10,5 +10,5 @@ public class SellerSaleDto
 
     public DateTime PurchasedAt { get; set; }
 
-    public CouponStatusesEnum Status { get; set; }
+    public string CouponStatus { get; set; } = null!;
 }

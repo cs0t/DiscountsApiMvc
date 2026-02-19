@@ -11,6 +11,8 @@ public class Reservation
     public Offer Offer { get; set; } = null!;
     
     public DateTime ReservedAt { get; set; }
+    
+    public DateTime? ValidUntil { get; set; }
     public DateTime? CancelledAt { get; set; }
     public bool IsActive { get; set; }
 }

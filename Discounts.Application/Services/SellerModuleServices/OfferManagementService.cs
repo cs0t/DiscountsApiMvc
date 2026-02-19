@@ -10,6 +10,7 @@ using Discounts.Application.Models;
 using Discounts.Application.Queries;
 using Discounts.Domain.Constants;
 using Discounts.Domain.Entities;
+using FluentValidation;
 
 namespace Discounts.Application.Services.SellerModuleServices;
 
@@ -19,21 +20,30 @@ public class OfferManagementService : IOfferManagementService
     private readonly IUserRepository _userRepository;
     private readonly ICategoryRepository _categoryRepository;
     private readonly ISystemSettingsService _systemSettingsService; 
+    private readonly IValidator<CreateOfferCommand> _createOfferValidator;
+    private readonly IValidator<UpdateOfferCommand> _updateOfferValidator;
 
     public OfferManagementService(
         IOfferRepository offerRepository, 
         IUserRepository userRepository,
         ICategoryRepository categoryRepository,
-        ISystemSettingsService systemSettingsService)
+        ISystemSettingsService systemSettingsService,
+        IValidator<CreateOfferCommand> createOfferValidator,
+        IValidator<UpdateOfferCommand> updateOfferValidator)
     {
         _offerRepository = offerRepository;
         _userRepository = userRepository;
         _categoryRepository = categoryRepository;
         _systemSettingsService = systemSettingsService;
+        _createOfferValidator = createOfferValidator;
+        _updateOfferValidator = updateOfferValidator;
     }
 
     public async Task<Offer> CreateOfferAsync(CreateOfferCommand offerCommand, int sellerId, CancellationToken ct = default)
     {
+        var createValidationResult = await _createOfferValidator.ValidateAsync(offerCommand, ct);
+        if (!createValidationResult.IsValid)
+            throw new ValidationException(createValidationResult.Errors);
         //check if user is authorized to create offer
         if (!await _userRepository.ExistsAsync(u => u.Id == sellerId, ct))
         {
@@ -85,6 +95,10 @@ public class OfferManagementService : IOfferManagementService
 
     public async Task<Offer> UpdateOfferAsync(UpdateOfferCommand offerCommand, int sellerId, CancellationToken ct = default)
     {
+        var updateValidationResult = await _updateOfferValidator.ValidateAsync(offerCommand, ct);
+        if (!updateValidationResult.IsValid)
+            throw new ValidationException(updateValidationResult.Errors);
+            
         var existingOffer = await _offerRepository.GetWithDetailsByIdAsync(offerCommand.OfferId, ct);
         if (existingOffer is null)
         {

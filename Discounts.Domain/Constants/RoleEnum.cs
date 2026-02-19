@@ -4,5 +4,6 @@ public enum RoleEnum
 {
     Administrator = 1,
     Seller,
-    Customer
+    Customer,
+    Blocked
 }

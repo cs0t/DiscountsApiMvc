@@ -2,7 +2,9 @@ using Discounts.Application.Interfaces.JwtContracts;
 using Discounts.Infra.Persistence;
 using Discounts.Infra.Repositories;
 using Discounts.Application.Interfaces.RepositoryContracts;
+using Discounts.Application.Interfaces.UnitOfWorkContracts;
 using Discounts.Infra.Security;
+using Discounts.Infra.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,6 +32,7 @@ public static class DependencyInjection
         services.AddScoped<IReservationRepository, ReservationRepository >();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<ISystemSettingsRepository, SystemSettingsRepository>();
+        services.AddScoped<IUnitOfWork, EfUnitOfWork>();
         services.AddScoped<IJwtService, JwtService>();
         return services;
     }

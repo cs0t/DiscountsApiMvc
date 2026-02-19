@@ -6,6 +6,7 @@ using Discounts.Application.Interfaces.RepositoryContracts;
 using Discounts.Application.Models;
 using Discounts.Domain.Constants;
 using Discounts.Domain.Entities;
+using FluentValidation;
 
 namespace Discounts.Application.Services.AuthServices;
 
@@ -13,15 +14,22 @@ public class AuthService : IAuthService
 {
     private readonly IJwtService _jwtService;
     private readonly IUserRepository _userRepository;
+    private readonly IValidator<LoginCommand> _loginValidator;
+    private readonly IValidator<RegisterCommand> _registerValidator;
     
-    public AuthService(IJwtService jwtService, IUserRepository userRepository)
+    public AuthService(IJwtService jwtService, IUserRepository userRepository, IValidator<LoginCommand> loginValidator, IValidator<RegisterCommand> registerValidator)
     {
         _jwtService = jwtService;
         _userRepository = userRepository;
+        _loginValidator = loginValidator;
+        _registerValidator = registerValidator;
     }
     
     public async Task<LoginResponse> LoginAsync(LoginCommand loginCommand, CancellationToken ct = default)
     {
+        var loginValidation = await _loginValidator.ValidateAsync(loginCommand, ct);
+        if (!loginValidation.IsValid)
+            throw new ValidationException(loginValidation.Errors);
         var user = await _userRepository.GetByEmailAsync(loginCommand.Email, ct);
         
         if(user is null)
@@ -35,6 +43,9 @@ public class AuthService : IAuthService
 
     public async Task<LoginResponse> RegisterAsync(RegisterCommand registerCommand, CancellationToken ct = default)
     {
+        var registerValidation = await _registerValidator.ValidateAsync(registerCommand, ct);
+        if (!registerValidation.IsValid)
+            throw new ValidationException(registerValidation.Errors);
         //check if email already exists
         var emailExists = await _userRepository.ExistsAsync(u=> u.Email == registerCommand.Email, ct);
         if (emailExists)
