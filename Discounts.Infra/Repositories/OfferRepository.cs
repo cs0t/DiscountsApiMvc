@@ -13,7 +13,24 @@ public class OfferRepository : Repository<Offer>, IOfferRepository
     public OfferRepository(ApplicationDbContext dbContext) : base(dbContext)
     {
     }
-    
+
+    public override async Task<PagedResult<Offer>> GetPagedAsync(int pageNumber = 1, int pageSize = 8, CancellationToken ct = default)
+    {
+        pageNumber = pageNumber < 1 ? 1 : pageNumber;
+        pageSize = pageSize is < 1 or > 20 ? 8 : pageSize;
+
+        var query = _context.Offers.AsNoTracking();
+        
+        var totalCount = await query.CountAsync(ct);
+        
+        var items = await query
+            .Include(o => o.Status)
+            .Include(o => o.Seller)
+            .Include(o => o.Categories)
+            .Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync(ct);
+        return new PagedResult<Offer>(items, totalCount, pageNumber, pageSize);
+    }
+
     public async Task<Offer> AddAndReturnAsync(Offer entity, CancellationToken ct = default)
     {
         await base.Add(entity,ct);

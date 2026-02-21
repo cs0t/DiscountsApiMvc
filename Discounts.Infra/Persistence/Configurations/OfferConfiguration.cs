@@ -26,6 +26,10 @@ public class OfferConfiguration : IEntityTypeConfiguration<Offer>
         builder.Property(o => o.RejectionReason).HasMaxLength(1000);
         builder.Property(o => o.EditableUntil).HasColumnType("datetime2");
         
+        builder.Property(o => o.RowVersion)
+            .IsRowVersion()
+            .IsConcurrencyToken();
+        
         
         //relations
         builder.HasOne(o => o.Seller)

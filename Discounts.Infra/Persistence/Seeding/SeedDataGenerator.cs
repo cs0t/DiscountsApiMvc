@@ -114,7 +114,8 @@ public static class SeedDataGenerator
         
         context.SystemSettings.AddRange(
             new Domain.Entities.SystemSettings { Key = SystemSettingNames.OfferEditingTimeLimitInHours, SettingValue = "24" },
-            new Domain.Entities.SystemSettings { Key = SystemSettingNames.ReservationTimeLimitInHours, SettingValue = "1" }
+            new Domain.Entities.SystemSettings { Key = SystemSettingNames.ReservationTimeLimitInHours, SettingValue = "1" },
+            new Domain.Entities.SystemSettings { Key = SystemSettingNames.CleanupServiceCycle, SettingValue = "0.25" }
         );
         
         await context.SaveChangesAsync(ct);

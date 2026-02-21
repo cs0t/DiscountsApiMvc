@@ -1,4 +1,6 @@
 using System.Security.Claims;
+using Discounts.API.Requests.CustomerRequests;
+using Discounts.Application.Commands;
 using Discounts.Application.Interfaces.CustomerModuleContracts;
 using Discounts.Application.Models;
 using Discounts.Application.Queries;
@@ -22,11 +24,13 @@ public class CustomerController : ControllerBase
         _customerService = customerService;
     }
 
-    [HttpPost("reserve/{offerId:int}")]
-    public async Task<IActionResult> CreateReservation(int offerId, CancellationToken ct = default)
+    [HttpPost("reserve")]
+    public async Task<IActionResult> CreateReservation([FromBody]CreateReservationRequest request, CancellationToken ct = default)
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        await _customerService.CreateReservationAsync(userId, offerId, ct);
+        var offerId = request.OfferId;
+        var rowVersion = Convert.FromBase64String(request.RowVersion);
+        await _customerService.CreateReservationAsync(userId, offerId, rowVersion,ct);
         return NoContent();
     }
 
@@ -48,15 +52,38 @@ public class CustomerController : ControllerBase
         return Ok(result);
     }
 
+    [HttpGet("reservations")]
+    public async Task<ActionResult<PagedResult<ReservationDto>>> GetReservations(int page = 1, int pageSize = 8, CancellationToken ct = default)
+    {
+        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var paged = await _customerService.GetCustomerReservationsAsync(userId, page, pageSize, ct);
+        var items = paged.Items.Select(r => _mapper.Map<ReservationDto>(r)).ToList();
+        var result = new PagedResult<ReservationDto>(items, paged.TotalCount, paged.PageNumber, paged.PageSize);
+        return Ok(result);
+    }
+
+    [HttpPost("reservations/cancel/{reservationId:int}")]
+    public async Task<IActionResult> CancelReservation(int reservationId, CancellationToken ct = default)
+    {
+        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        await _customerService.CancelReservationAsync(reservationId, userId, ct);
+        return NoContent();
+    }
+
+    [HttpGet("offers/{offerId:int}/state")]
+    public async Task<ActionResult<CustomerOfferStateDto>> GetOfferState(int offerId, CancellationToken ct = default)
+    {
+        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var state = await _customerService.GetOfferStateForCustomerAsync(offerId, userId, ct);
+        var dto = _mapper.Map<CustomerOfferStateDto>(state);
+        dto.Offer = _mapper.Map<OfferDetailsDto>(state.Offer);
+        return Ok(dto);
+    }
+
     [HttpGet("offers")]
     // [AllowAnonymous]
     public async Task<ActionResult<PagedResult<OfferDetailsDto>>> GetApprovedOffers([FromQuery] OfferListQuery query, CancellationToken ct = default)
     {
-        // int userId = 0;
-        // var idClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        // if (!string.IsNullOrEmpty(idClaim))
-        //     userId = int.Parse(idClaim);
-
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var paged = await _customerService.GetApprovedOffersAsync(query, userId, ct);
         var items = paged.Items.Select(o => _mapper.Map<OfferDetailsDto>(o)).ToList();

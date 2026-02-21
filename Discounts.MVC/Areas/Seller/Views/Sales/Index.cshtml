@@ -1,0 +1,43 @@
+@model List<SellerSaleDto>
+@{
+    ViewData["Title"] = "Sales History";
+}
+
+<h2><i class="bi bi-receipt"></i> Sales History</h2>
+<hr />
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle"></i> No sales yet.
+    </div>
+}
+else
+{
+    <table class="table table-striped table-hover shadow-sm">
+        <thead class="table-dark">
+            <tr>
+                <th>Coupon Code</th>
+                <th>Customer</th>
+                <th>Purchased At</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var sale in Model)
+            {
+                <tr>
+                    <td><code>@sale.CouponCode</code></td>
+                    <td>@sale.CustomerUsername</td>
+                    <td>@sale.PurchasedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                    <td><span class="badge bg-info">@sale.CouponStatus</span></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<a asp-controller="Dashboard" asp-action="Index" class="btn btn-secondary mt-3">
+    <i class="bi bi-arrow-left"></i> Back to Dashboard
+</a>
+

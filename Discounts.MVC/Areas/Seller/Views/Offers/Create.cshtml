@@ -1,0 +1,70 @@
+@model CreateOfferViewModel
+@{
+    ViewData["Title"] = "Create Offer";
+}
+
+<h2><i class="bi bi-plus-lg"></i> Create Offer</h2>
+<hr />
+
+<div class="row">
+    <div class="col-md-8">
+        <div asp-validation-summary="All" class="text-danger mb-3"></div>
+        <form asp-action="Create" method="post">
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label asp-for="Title" class="form-label"></label>
+                    <input asp-for="Title" class="form-control" />
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Description" class="form-label"></label>
+                <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="OriginalPrice" class="form-label"></label>
+                    <input asp-for="OriginalPrice" class="form-control" type="number" step="0.01" />
+                    <span asp-validation-for="OriginalPrice" class="text-danger"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="DiscountedPrice" class="form-label"></label>
+                    <input asp-for="DiscountedPrice" class="form-control" type="number" step="0.01" />
+                    <span asp-validation-for="DiscountedPrice" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label asp-for="MaxQuantity" class="form-label"></label>
+                    <input asp-for="MaxQuantity" class="form-control" type="number" />
+                    <span asp-validation-for="MaxQuantity" class="text-danger"></span>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label asp-for="RemainingQuantity" class="form-label"></label>
+                    <input asp-for="RemainingQuantity" class="form-control" type="number" />
+                    <span asp-validation-for="RemainingQuantity" class="text-danger"></span>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label asp-for="ExpirationDate" class="form-label"></label>
+                    <input asp-for="ExpirationDate" class="form-control" type="date" />
+                    <span asp-validation-for="ExpirationDate" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label asp-for="CategoryIds" class="form-label"></label>
+                <select asp-for="CategoryIds" asp-items="Model.AvailableCategories" class="form-select" multiple size="5">
+                </select>
+                <span asp-validation-for="CategoryIds" class="text-danger"></span>
+                <small class="text-muted">Hold Ctrl to select multiple categories</small>
+            </div>
+            <button type="submit" class="btn btn-success"><i class="bi bi-check-lg"></i> Create Offer</button>
+            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+

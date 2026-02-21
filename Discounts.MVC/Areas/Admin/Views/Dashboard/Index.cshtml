@@ -1,0 +1,46 @@
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<h2><i class="bi bi-shield-lock"></i> Admin Dashboard</h2>
+<hr />
+
+<div class="row g-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white shadow">
+            <div class="card-body text-center">
+                <i class="bi bi-grid-3x3-gap-fill display-4"></i>
+                <h5 class="mt-2">Categories</h5>
+                <a asp-controller="Categories" asp-action="Index" class="btn btn-light btn-sm mt-2">Manage</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white shadow">
+            <div class="card-body text-center">
+                <i class="bi bi-people-fill display-4"></i>
+                <h5 class="mt-2">Users</h5>
+                <a asp-controller="Users" asp-action="Index" class="btn btn-light btn-sm mt-2">Manage</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-dark shadow">
+            <div class="card-body text-center">
+                <i class="bi bi-tag-fill display-4"></i>
+                <h5 class="mt-2">Offers</h5>
+                <a asp-controller="Offers" asp-action="Index" class="btn btn-dark btn-sm mt-2">Review</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white shadow">
+            <div class="card-body text-center">
+                <i class="bi bi-gear-fill display-4"></i>
+                <h5 class="mt-2">Settings</h5>
+                <a asp-controller="SystemSettings" asp-action="Index" class="btn btn-light btn-sm mt-2">Manage</a>
+            </div>
+        </div>
+    </div>
+</div>
+

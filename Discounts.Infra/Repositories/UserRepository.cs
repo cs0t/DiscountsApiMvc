@@ -1,3 +1,4 @@
+using Discounts.Application.Models;
 using Discounts.Domain.Entities;
 using Discounts.Infra.Persistence;
 using Discounts.Application.Interfaces.RepositoryContracts;
@@ -8,6 +9,19 @@ namespace Discounts.Infra.Repositories;
 public class UserRepository : Repository<User>, IUserRepository
 {
     public UserRepository(ApplicationDbContext dbContext) : base(dbContext) { }
+
+    public override async Task<PagedResult<User>> GetPagedAsync(int pageNumber = 1, int pageSize = 8, CancellationToken ct = default)
+    {
+        pageNumber = pageNumber < 1 ? 1 : pageNumber;
+        pageSize = pageSize is < 1 or > 20 ? 8 : pageSize;
+
+        var query = _context.Users.AsNoTracking();
+        var totalCount = await query.CountAsync(ct);
+        var items = await query
+            .Include(u => u.Role)
+            .Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync(ct);
+        return new PagedResult<User>(items, totalCount, pageNumber, pageSize);
+    }
 
     public async Task<User> AddAndReturnAsync(User entity, CancellationToken ct = default)
     {

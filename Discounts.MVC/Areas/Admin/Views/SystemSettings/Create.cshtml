@@ -1,0 +1,32 @@
+@model CreateSystemSettingViewModel
+@{
+    ViewData["Title"] = "Create Setting";
+}
+
+<h2><i class="bi bi-plus-lg"></i> Create System Setting</h2>
+<hr />
+
+<div class="row">
+    <div class="col-md-6">
+        <div asp-validation-summary="All" class="text-danger mb-3"></div>
+        <form asp-action="Create" method="post">
+            <div class="mb-3">
+                <label asp-for="Key" class="form-label"></label>
+                <input asp-for="Key" class="form-control" />
+                <span asp-validation-for="Key" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="SettingValue" class="form-label"></label>
+                <input asp-for="SettingValue" class="form-control" />
+                <span asp-validation-for="SettingValue" class="text-danger"></span>
+            </div>
+            <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Create</button>
+            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+

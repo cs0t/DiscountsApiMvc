@@ -1,7 +1,9 @@
+using System.Linq;
 using System.Security.Claims;
 using Discounts.API.Requests.AdminRequests;
 using Discounts.Application.Commands;
 using Discounts.Application.Interfaces.AdminModuleContracts;
+using Discounts.Application.Models;
 using MapsterMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -35,7 +37,16 @@ public class AdminController : ControllerBase
 
     private int GetAdminId() => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-    // Categories
+    // categories
+    [HttpGet("categories")]
+    public async Task<ActionResult<PagedResult<CategoryDto>>> GetCategories(int page = 1, int pageSize = 8, CancellationToken ct = default)
+    {
+        var paged = await _categoryService.GetCategoriesPagedForAdminAsync(GetAdminId(), page, pageSize, ct);
+        var items = paged.Items.Select(c => _mapper.Map<CategoryDto>(c)).ToList();
+        var result = new PagedResult<CategoryDto>(items, paged.TotalCount, paged.PageNumber, paged.PageSize);
+        return Ok(result);
+    }
+
     [HttpPost("categories")]
     public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryRequest request, CancellationToken ct = default)
     {
@@ -52,7 +63,23 @@ public class AdminController : ControllerBase
         return NoContent();
     }
 
-    // System settings
+    [HttpDelete("categories/{categoryId:int}")]
+    public async Task<IActionResult> DeleteCategory(int categoryId, CancellationToken ct = default)
+    {
+        await _categoryService.DeleteCategoryAsync(GetAdminId(), categoryId, ct);
+        return NoContent();
+    }
+
+    // system settings
+    [HttpGet("system-settings")]
+    public async Task<ActionResult<PagedResult<SystemSettingsDto>>> GetSystemSettings(int page = 1, int pageSize = 8, CancellationToken ct = default)
+    {
+        var paged = await _settingsService.GetSettingsPagedForAdminAsync(GetAdminId(), page, pageSize, ct);
+        var items = paged.Items.Select(s => _mapper.Map<SystemSettingsDto>(s)).ToList();
+        var result = new PagedResult<SystemSettingsDto>(items, paged.TotalCount, paged.PageNumber, paged.PageSize);
+        return Ok(result);
+    }
+
     [HttpPost("system-settings")]
     public async Task<IActionResult> CreateSystemSetting([FromBody] CreateSystemSettingRequest request, CancellationToken ct = default)
     {
@@ -69,7 +96,16 @@ public class AdminController : ControllerBase
         return NoContent();
     }
 
-    // Users
+    // users
+    [HttpGet("users")]
+    public async Task<ActionResult<PagedResult<UserDto>>> GetUsers(int page = 1, int pageSize = 8, CancellationToken ct = default)
+    {
+        var paged = await _userService.GetSettingsPagedForAdminAsync(GetAdminId(), page, pageSize, ct);
+        var items = paged.Items.Select(u => _mapper.Map<UserDto>(u)).ToList();
+        var result = new PagedResult<UserDto>(items, paged.TotalCount, paged.PageNumber, paged.PageSize);
+        return Ok(result);
+    }
+
     [HttpPost("users")]
     public async Task<IActionResult> CreateUser([FromBody] ManageUserCreationRequest request, CancellationToken ct = default)
     {
@@ -93,7 +129,16 @@ public class AdminController : ControllerBase
         return NoContent();
     }
 
-    // Offers
+    // offers
+    [HttpGet("offers")]
+    public async Task<ActionResult<PagedResult<OfferDetailsDto>>> GetOffers(int page = 1, int pageSize = 8, CancellationToken ct = default)
+    {
+        var paged = await _offerAdminService.GetOffersPagedForAdminAsync(GetAdminId(), page, pageSize, ct);
+        var items = paged.Items.Select(o => _mapper.Map<OfferDetailsDto>(o)).ToList();
+        var result = new PagedResult<OfferDetailsDto>(items, paged.TotalCount, paged.PageNumber, paged.PageSize);
+        return Ok(result);
+    }
+
     [HttpPost("offers/approve/{offerId:int}")]
     public async Task<IActionResult> ApproveOffer(int offerId, CancellationToken ct = default)
     {

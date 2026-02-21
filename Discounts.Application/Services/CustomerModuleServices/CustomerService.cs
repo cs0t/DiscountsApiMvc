@@ -1,3 +1,4 @@
+using System.Data;
 using Discounts.Application.Exceptions.OfferExceptions;
 using Discounts.Application.Exceptions.UserExceptions;
 using Discounts.Application.Interfaces.CustomerModuleContracts;
@@ -38,19 +39,6 @@ public class CustomerService : ICustomerService
     
     public async Task PurchaseCouponAsync(int customerId, int offerId, CancellationToken ct = default)
     {
-        // Fetch reservation
-        //
-        // Verify reservation belongs to customer
-        //
-        //     Verify reservation is not expired
-        //
-        //     Generate unique coupon code
-        //
-        //     Create coupon (Active)
-        //
-        // Persist coupon
-        //
-        // Remove reservation
         await _unitOfWork.ExecuteInTransactionAsync(async () =>
         {
             var existingOffer = await _offerRepository.GetWithDetailsByIdAsync(offerId, ct);
@@ -70,7 +58,7 @@ public class CustomerService : ICustomerService
             if (existingReservation is null)
                 throw new ApplicationException("User must have a reservation before purchasing a coupon !");
 
-            if (existingReservation.ValidUntil < DateTime.Now)
+            if (existingReservation.ValidUntil < DateTime.UtcNow)
                 throw new ApplicationException("Reservation has already expired !");
             
             var existingUser = await _userRepository.GetWithRolesAsync(customerId, ct);
@@ -102,67 +90,80 @@ public class CustomerService : ICustomerService
         }, ct);
     }
 
-    public async Task CreateReservationAsync(int customerId, int offerId, CancellationToken ct = default)
+    public async Task CreateReservationAsync(int customerId, int offerId, byte[] rowVersion, CancellationToken ct = default)
     {
-        await _unitOfWork.ExecuteInTransactionAsync(async () =>
+        try
         {
-            var existingOffer = await _offerRepository.GetWithDetailsByIdAsync(offerId, ct);
-            if (existingOffer is null)
+            await _unitOfWork.ExecuteInTransactionAsync(async () =>
             {
-                throw new OfferNotFoundException($"Offer with id {offerId} not found !");
-            }
+                var existingOffer = await _offerRepository.GetWithDetailsByIdAsync(offerId, ct);
+                if (existingOffer is null)
+                {
+                    throw new OfferNotFoundException($"Offer with id {offerId} not found !");
+                }
 
-            if (existingOffer.StatusId != (int)OfferStatusesEnum.Approved)
-            {
-                throw new ApplicationException("Only approved offers can be reserved !");
-            }
+                if (existingOffer.StatusId != (int)OfferStatusesEnum.Approved)
+                {
+                    throw new ApplicationException("Only approved offers can be reserved !");
+                }
 
-            if (existingOffer.ExpirationDate < DateTime.Now)
-            {
-                throw new ApplicationException("Offer has already expired !");
-            }
+                if (existingOffer.ExpirationDate < DateTime.UtcNow)
+                {
+                    throw new ApplicationException("Offer has already expired !");
+                }
 
-            //check if reservation already exists
-            var existingReservation = await _reservationRepository
-                .GetActiveReservationByUserIdAndOfferIdAsync(customerId, offerId, ct);
-            if (existingReservation is not null && existingReservation.IsActive)
-                throw new ApplicationException("User already has an active reservation for this offer !");
+                if (!existingOffer.RowVersion.SequenceEqual(rowVersion))
+                {
+                    throw new DBConcurrencyException("The offer was modified during reservation! Please try again!");
+                }
+                
+                //check if reservation already exists
+                var existingReservation = await _reservationRepository
+                    .GetActiveReservationByUserIdAndOfferIdAsync(customerId, offerId, ct);
+                if (existingReservation is not null && existingReservation.IsActive)
+                    throw new ApplicationException("User already has an active reservation for this offer !");
 
-            //check if offer has available coupons
-            if (existingOffer.RemainingQuantity < 1)
-                throw new ApplicationException("No coupons available for this offer !");
-            
-            var existingUser = await _userRepository.GetWithRolesAsync(customerId, ct);
-            
-            if (existingUser is null)
-            {
-                throw new UserNotFoundException($"User with id {customerId} not found !");
-            }
-            
-            if(existingUser.RoleId != (int)RoleEnum.Customer)
-            {
-                throw new ApplicationException("Only customers can create reservations !");
-            }
+                //check if offer has available coupons
+                if (existingOffer.RemainingQuantity < 1)
+                    throw new ApplicationException("No coupons available for this offer !");
 
-            var validityHours =
-                await _settingsService.GetSettingValueByKeyAsync<int>(SystemSettingNames.ReservationTimeLimitInHours,
-                    ct);
+                var existingUser = await _userRepository.GetWithRolesAsync(customerId, ct);
 
-            var now = DateTime.UtcNow;
-            var reservation = new Reservation
-            {
-                UserId = customerId,
-                OfferId = offerId,
-                ReservedAt = now,
-                ValidUntil = now.AddHours(validityHours),
-                IsActive = true
-            };
+                if (existingUser is null)
+                {
+                    throw new UserNotFoundException($"User with id {customerId} not found !");
+                }
 
-            //decrease spots
-            existingOffer.RemainingQuantity--;
-            //create reservation
-            await _reservationRepository.Add(reservation, ct);
-        }, ct);
+                if (existingUser.RoleId != (int)RoleEnum.Customer)
+                {
+                    throw new ApplicationException("Only customers can create reservations !");
+                }
+
+                var validityHours =
+                    await _settingsService.GetSettingValueByKeyAsync<int>(
+                        SystemSettingNames.ReservationTimeLimitInHours,
+                        ct);
+
+                var now = DateTime.UtcNow;
+                var reservation = new Reservation
+                {
+                    UserId = customerId,
+                    OfferId = offerId,
+                    ReservedAt = now,
+                    ValidUntil = now.AddHours(validityHours),
+                    IsActive = true
+                };
+
+                //decrease spots
+                existingOffer.RemainingQuantity--;
+                //create reservation
+                await _reservationRepository.Add(reservation, ct);
+            }, ct);
+        }
+        catch (DBConcurrencyException)
+        {
+            throw new ApplicationException("The offer was modified during reservation ! Please try again !");
+        }
     }
 
     public async Task<PagedResult<Coupon>> GetCustomerCouponsAsync(int customerId, 
@@ -180,7 +181,95 @@ public class CustomerService : ICustomerService
         var pagedResult = await _couponRepository.GetByCustomerIdPagedAsync(customerId, page, pageSize, ct);
         return pagedResult;
     }
+    
+    public async Task CancelReservationAsync(int reservationId, int customerId, CancellationToken ct = default)
+    {
+        await _unitOfWork.ExecuteInTransactionAsync(async () =>
+        {
+            var existingReservation = await _reservationRepository.GetById(reservationId, ct);
+            if (existingReservation is null)
+            {
+                throw new ApplicationException($"Reservation with id {reservationId} not found !");
+            }
 
+            if (existingReservation.UserId != customerId)
+            {
+                throw new ApplicationException("Users can only cancel their own reservations !");
+            }
+
+            if (!existingReservation.IsActive)
+            {
+                throw new ApplicationException("Only active reservations can be cancelled !");
+            }
+
+            existingReservation.IsActive = false;
+            existingReservation.CancelledAt = DateTime.UtcNow;
+
+
+            var existingOffer = await _offerRepository.GetById(existingReservation.OfferId, ct);
+            if (existingOffer is null || existingOffer.StatusId != (int)OfferStatusesEnum.Approved)
+            {
+                throw new ApplicationException("Associated offer not found or not approved !");
+            }
+
+            existingOffer.RemainingQuantity++;
+        }, ct);
+    }
+    
+    public async Task<PagedResult<Reservation>> GetCustomerReservationsAsync(int customerId, 
+        int page=1, int pageSize=8,CancellationToken ct = default)
+    {
+        var existingUser = await _userRepository.GetWithRolesAsync(customerId, ct);
+        if (existingUser is null)
+        {
+            throw new UserNotFoundException($"User with id {customerId} not found !");
+        }
+        if(existingUser.RoleId != (int)RoleEnum.Customer)
+        {
+            throw new ApplicationException("Only customers can view their reservations !");
+        }
+        var pagedResult = await _reservationRepository.GetActiveReservationsByUserIdAsync(customerId, page, pageSize, ct);
+        return pagedResult;
+    }
+
+    public async Task<CustomerOfferState> GetOfferStateForCustomerAsync(int offerId, int customerId, CancellationToken ct = default)
+    {
+        //public OfferDetailsDto Offer { get; set; } = null!;
+        //public bool HasActiveReservation { get; set; }
+        //public DateTime? ReservationValidUntil { get; set; }
+        //public bool CanReserve { get; set; }
+        //public bool CanPurchase { get; set; }
+        var existingOffer = await _offerRepository.GetWithDetailsByIdAsync(offerId, ct);
+        if (existingOffer is null)        
+            throw new OfferNotFoundException($"Offer with id {offerId} not found !");
+        
+        if(existingOffer.StatusId != (int)OfferStatusesEnum.Approved)
+            throw new ApplicationException("Only approved offers can be viewed !");
+        
+        var existingUser = await _userRepository.GetWithRolesAsync(customerId, ct);
+        if (existingUser is null)
+            throw new UserNotFoundException($"User with id {customerId} not found !");
+        
+        if(existingUser.RoleId != (int)RoleEnum.Customer)
+            throw new ApplicationException("Only customers can view offer details !");
+        
+        var activeReservation = await _reservationRepository.GetActiveReservationByUserIdAndOfferIdAsync(customerId, offerId, ct);
+        var hasActiveReservation = activeReservation is not null && activeReservation.IsActive;
+        var reservationValidUntil = hasActiveReservation ? activeReservation!.ValidUntil : null;
+        var canReserve = !hasActiveReservation && existingOffer.RemainingQuantity > 0 && existingOffer.ExpirationDate > DateTime.UtcNow;
+        var canPurchase = hasActiveReservation && reservationValidUntil > DateTime.UtcNow;
+        
+        return new CustomerOfferState
+        {
+            Offer = existingOffer,
+            HasActiveReservation = hasActiveReservation,
+            ReservationValidUntil = reservationValidUntil,
+            CanReserve = canReserve,
+            CanPurchase = canPurchase
+        };
+    }
+    
+    
     public async Task<PagedResult<Offer>> GetApprovedOffersAsync(OfferListQuery query,int customerId, CancellationToken ct = default)
     {
         var existingUser = await _userRepository.GetWithRolesAsync(customerId, ct);

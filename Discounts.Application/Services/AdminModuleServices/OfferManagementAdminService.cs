@@ -4,7 +4,9 @@ using Discounts.Application.Exceptions.OfferExceptions;
 using Discounts.Application.Exceptions.UserExceptions;
 using Discounts.Application.Interfaces.AdminModuleContracts;
 using Discounts.Application.Interfaces.RepositoryContracts;
+using Discounts.Application.Models;
 using Discounts.Domain.Constants;
+using Discounts.Domain.Entities;
 using FluentValidation;
 
 namespace Discounts.Application.Services.AdminModuleServices;
@@ -74,5 +76,18 @@ public class OfferManagementAdminService : IOfferManagementAdminService
         existingOffer.RejectionReason = command.Reason;
         existingOffer.RejectedAt = DateTime.UtcNow;
         await _offerRepository.SaveChangesAsync(ct);
+    }
+    
+    public async Task<PagedResult<Offer>> GetOffersPagedForAdminAsync(int adminId,int pageNumber = 1, int pageSize = 8,
+        CancellationToken ct = default)
+    {
+        var admin = await _userRepository.GetWithRolesAsync(adminId, ct);
+            
+        if(admin is null)
+            throw new UserNotFoundException("Admin not found");
+            
+        if (admin.RoleId != (int)RoleEnum.Administrator)
+            throw new ForbiddenException("This user doesn`t have admin permissions !");
+        return await _offerRepository.GetPagedAsync(pageNumber, pageSize, ct);
     }
 }

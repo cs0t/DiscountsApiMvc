@@ -6,4 +6,16 @@
         <ImplicitUsings>enable</ImplicitUsings>
     </PropertyGroup>
 
+
+    <ItemGroup>
+      <ProjectReference Include="..\Discounts.Application\Discounts.Application.csproj" />
+      <ProjectReference Include="..\Discounts.Domain\Discounts.Domain.csproj" />
+      <ProjectReference Include="..\Discounts.Infra\Discounts.Infra.csproj" />
+    </ItemGroup>
+
+
+    <ItemGroup>
+      <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
+    </ItemGroup>
+
 </Project>

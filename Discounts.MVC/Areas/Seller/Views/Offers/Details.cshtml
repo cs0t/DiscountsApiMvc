@@ -1,0 +1,74 @@
+@model Offer
+@{
+    ViewData["Title"] = "Offer Details";
+}
+
+<h2><i class="bi bi-eye"></i> Offer Details</h2>
+<hr />
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-body">
+                <h4 class="card-title">@Model.Title</h4>
+                <p class="text-muted">@(Model.Description ?? "No description")</p>
+
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <dl>
+                            <dt>Original Price</dt>
+                            <dd>@Model.OriginalPrice.ToString("C")</dd>
+                            <dt>Discounted Price</dt>
+                            <dd class="text-success fw-bold">@Model.DiscountedPrice.ToString("C")</dd>
+                            <dt>Max Quantity</dt>
+                            <dd>@Model.MaxQuantity</dd>
+                            <dt>Remaining</dt>
+                            <dd>@Model.RemainingQuantity</dd>
+                        </dl>
+                    </div>
+                    <div class="col-md-6">
+                        <dl>
+                            <dt>Status</dt>
+                            <dd><span class="badge bg-info">@(Model.Status?.Name ?? "N/A")</span></dd>
+                            <dt>Created</dt>
+                            <dd>@Model.CreatedAt.ToString("yyyy-MM-dd HH:mm")</dd>
+                            <dt>Expires</dt>
+                            <dd>@Model.ExpirationDate.ToString("yyyy-MM-dd")</dd>
+                            @if (Model.EditableUntil.HasValue)
+                            {
+                                <dt>Editable Until</dt>
+                                <dd>@Model.EditableUntil.Value.ToString("yyyy-MM-dd HH:mm")</dd>
+                            }
+                        </dl>
+                    </div>
+                </div>
+
+                @if (Model.RejectionReason != null)
+                {
+                    <div class="alert alert-danger mt-3">
+                        <strong>Rejection Reason:</strong> @Model.RejectionReason
+                    </div>
+                }
+
+                @if (Model.Categories.Any())
+                {
+                    <div class="mt-3">
+                        <strong>Categories:</strong>
+                        @foreach (var cat in Model.Categories)
+                        {
+                            <span class="badge bg-secondary me-1">@cat.Name</span>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="mt-3">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+                <i class="bi bi-pencil"></i> Edit
+            </a>
+            <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+        </div>
+    </div>
+</div>
+

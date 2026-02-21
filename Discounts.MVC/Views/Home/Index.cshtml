@@ -2,7 +2,72 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="text-center py-5">
+    <h1 class="display-4 fw-bold">Welcome to the Discounts Platform</h1>
+    <p class="lead text-muted">Find the best deals, manage offers, and save money.</p>
+
+    @if (User.Identity?.IsAuthenticated != true)
+    {
+        <div class="mt-4">
+            <a class="btn btn-primary btn-lg me-2" asp-controller="Account" asp-action="Login">
+                <i class="bi bi-box-arrow-in-right"></i> Login
+            </a>
+            <a class="btn btn-outline-primary btn-lg" asp-controller="Account" asp-action="Register">
+                <i class="bi bi-person-plus"></i> Register
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="mt-4">
+            @if (User.IsInRole("Admin"))
+            {
+                <a class="btn btn-dark btn-lg" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+                    <i class="bi bi-shield-lock"></i> Go to Admin Dashboard
+                </a>
+            }
+            @if (User.IsInRole("Seller"))
+            {
+                <a class="btn btn-success btn-lg" asp-area="Seller" asp-controller="Dashboard" asp-action="Index">
+                    <i class="bi bi-shop"></i> Go to Seller Dashboard
+                </a>
+            }
+            @if (User.IsInRole("Customer"))
+            {
+                <a class="btn btn-primary btn-lg" asp-area="Customer" asp-controller="Offers" asp-action="Index">
+                    <i class="bi bi-cart"></i> Browse Offers
+                </a>
+            }
+        </div>
+    }
+</div>
+
+<div class="row text-center mt-5">
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <i class="bi bi-tags-fill display-4 text-primary"></i>
+                <h5 class="card-title mt-3">Great Discounts</h5>
+                <p class="card-text">Find amazing deals from verified sellers.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <i class="bi bi-shield-check display-4 text-success"></i>
+                <h5 class="card-title mt-3">Verified Offers</h5>
+                <p class="card-text">All offers are reviewed and approved by admins.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <i class="bi bi-ticket-perforated-fill display-4 text-warning"></i>
+                <h5 class="card-title mt-3">Digital Coupons</h5>
+                <p class="card-text">Get your coupons instantly after purchase.</p>
+            </div>
+        </div>
+    </div>
 </div>

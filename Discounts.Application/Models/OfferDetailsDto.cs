@@ -19,6 +19,8 @@ public class OfferDetailsDto
 
     public int SellerId { get; set; }
     public string SellerUserName { get; set; } = null!;
+    
+    public string RowVersion { get; set; } = null!;
 
     public List<string> Categories { get; set; } = new List<string>();  
 }

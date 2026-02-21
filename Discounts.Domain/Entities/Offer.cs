@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Discounts.Domain.Entities;
 
 public class Offer
@@ -30,4 +32,7 @@ public class Offer
     
     public int SellerId { get; set; }
     public User Seller { get; set; } = null!;
+    
+    [Timestamp]
+    public byte[] RowVersion { get; set; } = default!;
 }

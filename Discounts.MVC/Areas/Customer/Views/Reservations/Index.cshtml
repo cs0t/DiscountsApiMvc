@@ -1,0 +1,102 @@
+@model PagedResult<ReservationDto>
+@{
+    ViewData["Title"] = "My Reservations";
+}
+
+<h2><i class="bi bi-bookmark-fill"></i> My Reservations</h2>
+<hr />
+
+@if (!Model.Items.Any())
+{
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle"></i> You don't have any active reservations.
+        <a asp-controller="Offers" asp-action="Index">Browse offers</a> to reserve one.
+    </div>
+}
+else
+{
+    <div class="row g-4">
+        @foreach (var reservation in Model.Items)
+        {
+            <div class="col-md-6">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <h5 class="card-title">@reservation.OfferTitle</h5>
+                            @if (reservation.IsActive)
+                            {
+                                @if (reservation.ValidUntil.HasValue && reservation.ValidUntil.Value > DateTime.UtcNow)
+                                {
+                                    <span class="badge bg-success">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark">Expired</span>
+                                }
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Cancelled</span>
+                            }
+                        </div>
+                        <hr />
+                        <div class="row">
+                            <div class="col-6">
+                                <dl class="mb-0">
+                                    <dt>Reserved At</dt>
+                                    <dd>@reservation.ReservedAt.ToString("yyyy-MM-dd HH:mm")</dd>
+                                </dl>
+                            </div>
+                            <div class="col-6">
+                                <dl class="mb-0">
+                                    <dt>Valid Until</dt>
+                                    <dd>
+                                        @if (reservation.ValidUntil.HasValue)
+                                        {
+                                            @reservation.ValidUntil.Value.ToString("yyyy-MM-dd HH:mm")
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">N/A</span>
+                                        }
+                                    </dd>
+                                </dl>
+                            </div>
+                        </div>
+
+                        @if (reservation.IsActive && reservation.ValidUntil.HasValue && reservation.ValidUntil.Value > DateTime.UtcNow)
+                        {
+                            <hr />
+                            <div class="d-flex gap-2">
+                                <form asp-action="Purchase" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="offerId" value="@reservation.OfferId" />
+                                    <button type="submit" class="btn btn-success btn-sm"
+                                            onclick="return confirm('Purchase this coupon?');">
+                                        <i class="bi bi-bag-check"></i> Purchase
+                                    </button>
+                                </form>
+                                <form asp-action="Cancel" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="reservationId" value="@reservation.Id" />
+                                    <button type="submit" class="btn btn-outline-danger btn-sm"
+                                            onclick="return confirm('Cancel this reservation? The spot will be released.');">
+                                        <i class="bi bi-x-circle"></i> Cancel
+                                    </button>
+                                </form>
+                                <a asp-controller="Offers" asp-action="Details" asp-route-id="@reservation.OfferId"
+                                   class="btn btn-outline-info btn-sm">
+                                    <i class="bi bi-eye"></i> View Offer
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    @* Pagination *@
+    <partial name="_PagerPartial" model="Model" />
+}
+

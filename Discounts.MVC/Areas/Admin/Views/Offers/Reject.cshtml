@@ -1,0 +1,34 @@
+@model RejectOfferViewModel
+@{
+    ViewData["Title"] = "Reject Offer";
+}
+
+<h2><i class="bi bi-x-lg text-danger"></i> Reject Offer</h2>
+<hr />
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-body">
+                <h5>Offer: @Model.OfferTitle</h5>
+                <div asp-validation-summary="All" class="text-danger mb-3"></div>
+                <form asp-action="Reject" method="post">
+                    <input type="hidden" asp-for="OfferId" />
+                    <input type="hidden" asp-for="OfferTitle" />
+                    <div class="mb-3">
+                        <label asp-for="Reason" class="form-label">Rejection Reason</label>
+                        <textarea asp-for="Reason" class="form-control" rows="4" placeholder="Explain why this offer is being rejected..."></textarea>
+                        <span asp-validation-for="Reason" class="text-danger"></span>
+                    </div>
+                    <button type="submit" class="btn btn-danger"><i class="bi bi-x-lg"></i> Reject</button>
+                    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+

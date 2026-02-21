@@ -1,0 +1,32 @@
+@model EditSystemSettingViewModel
+@{
+    ViewData["Title"] = "Edit Setting";
+}
+
+<h2><i class="bi bi-pencil"></i> Edit System Setting</h2>
+<hr />
+
+<div class="row">
+    <div class="col-md-6">
+        <div asp-validation-summary="All" class="text-danger mb-3"></div>
+        <form asp-action="Edit" method="post">
+            <input type="hidden" asp-for="Id" />
+            <div class="mb-3">
+                <label asp-for="Key" class="form-label"></label>
+                <input asp-for="Key" class="form-control" readonly />
+            </div>
+            <div class="mb-3">
+                <label asp-for="NewSettingValue" class="form-label"></label>
+                <input asp-for="NewSettingValue" class="form-control" />
+                <span asp-validation-for="NewSettingValue" class="text-danger"></span>
+            </div>
+            <button type="submit" class="btn btn-warning"><i class="bi bi-check-lg"></i> Update</button>
+            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+

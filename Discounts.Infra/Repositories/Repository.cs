@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using Discounts.Infra.Persistence;
 using Discounts.Application.Interfaces;
+using Discounts.Application.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Discounts.Infra.Repositories;
@@ -39,6 +40,18 @@ public abstract class Repository<T> : IRepository<T> where T : class
         CancellationToken ct = default)
     {
         return _dbSet.Where(func).ToListAsync(ct);
+    }
+
+    public virtual async Task<PagedResult<T>> GetPagedAsync(int pageNumber = 1, int pageSize = 8, CancellationToken ct = default)
+    {
+        pageNumber = pageNumber < 1 ? 1 : pageNumber;
+        pageSize = pageSize is < 1 or > 20 ? 8 : pageSize;
+        
+        var query = _dbSet.AsNoTracking();
+        
+        var totalCount = await query.CountAsync(ct);
+        var items = await query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync(ct);
+        return new  PagedResult<T>(items, totalCount, pageNumber, pageSize);
     }
 
     public virtual async Task SaveChangesAsync(CancellationToken ct = default) =>  await _context.SaveChangesAsync(ct);

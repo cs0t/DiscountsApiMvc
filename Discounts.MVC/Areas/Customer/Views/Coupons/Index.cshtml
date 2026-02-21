@@ -1,0 +1,97 @@
+@model PagedResult<CouponDetailsDto>
+@{
+    ViewData["Title"] = "My Coupons";
+}
+
+<h2><i class="bi bi-ticket-perforated"></i> My Coupons</h2>
+<hr />
+
+@if (!Model.Items.Any())
+{
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle"></i> You don't have any coupons yet.
+        <a asp-controller="Offers" asp-action="Index">Browse offers</a> to purchase one.
+    </div>
+}
+else
+{
+    <div class="row g-4">
+        @foreach (var coupon in Model.Items)
+        {
+            <div class="col-md-6">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h5 class="card-title">@coupon.OfferTitle</h5>
+                                <p class="text-muted small">@coupon.OfferDescription</p>
+                            </div>
+                            @{
+                                var statusBadge = coupon.CouponStatus switch
+                                {
+                                    "Active" => "bg-success",
+                                    "Used" => "bg-secondary",
+                                    "Expired" => "bg-danger",
+                                    _ => "bg-info"
+                                };
+                            }
+                            <span class="badge @statusBadge">@coupon.CouponStatus</span>
+                        </div>
+                        <hr />
+                        <div class="row">
+                            <div class="col-6">
+                                <dl class="mb-0">
+                                    <dt>Coupon Code</dt>
+                                    <dd><code class="fs-5">@coupon.Code</code></dd>
+                                    <dt>Original Price</dt>
+                                    <dd class="text-decoration-line-through text-muted">@coupon.OriginalPrice.ToString("C")</dd>
+                                </dl>
+                            </div>
+                            <div class="col-6">
+                                <dl class="mb-0">
+                                    <dt>Discount Price</dt>
+                                    <dd class="text-success fw-bold">@coupon.DiscountPrice.ToString("C")</dd>
+                                    <dt>Purchased</dt>
+                                    <dd>@coupon.PurchasedAt.ToString("yyyy-MM-dd")</dd>
+                                    <dt>Expires</dt>
+                                    <dd>@coupon.ExpirationDate.ToString("yyyy-MM-dd")</dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    @* Pagination *@
+    @if (Model.TotalCount > Model.PageSize)
+    {
+        <nav class="mt-4">
+            <ul class="pagination justify-content-center">
+                @if (Model.HasPrevious)
+                {
+                    <li class="page-item">
+                        <a class="page-link" asp-action="Index" asp-route-page="@(Model.PageNumber - 1)">Previous</a>
+                    </li>
+                }
+                @{
+                    var totalPages = (int)Math.Ceiling((double)Model.TotalCount / Model.PageSize);
+                }
+                @for (var i = 1; i <= totalPages; i++)
+                {
+                    <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-page="@i">@i</a>
+                    </li>
+                }
+                @if (Model.HasNext)
+                {
+                    <li class="page-item">
+                        <a class="page-link" asp-action="Index" asp-route-page="@(Model.PageNumber + 1)">Next</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+}
+

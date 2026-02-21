@@ -3,6 +3,7 @@ using Discounts.Application.Exceptions;
 using Discounts.Application.Exceptions.UserExceptions;
 using Discounts.Application.Interfaces.AdminModuleContracts;
 using Discounts.Application.Interfaces.RepositoryContracts;
+using Discounts.Application.Models;
 using Discounts.Domain.Constants;
 using Discounts.Domain.Entities;
 using FluentValidation;
@@ -141,5 +142,18 @@ public class UserManagementService : IUserManagementService
         
         user.RoleId = (int)RoleEnum.Blocked;
         await _userRepository.SaveChangesAsync(ct);
+    }
+    
+    public async Task<PagedResult<User>> GetSettingsPagedForAdminAsync(int adminId,int pageNumber = 1, int pageSize = 8,
+        CancellationToken ct = default)
+    {
+        var admin = await _userRepository.GetWithRolesAsync(adminId, ct);
+            
+        if(admin is null)
+            throw new UserNotFoundException("Admin not found");
+            
+        if (admin.RoleId != (int)RoleEnum.Administrator)
+            throw new ForbiddenException("This user doesn`t have admin permissions !");
+        return await _userRepository.GetPagedAsync(pageNumber, pageSize, ct);
     }
 }

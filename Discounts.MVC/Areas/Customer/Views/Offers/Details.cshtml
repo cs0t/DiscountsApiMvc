@@ -1,0 +1,130 @@
+@model CustomerOfferStateDto
+@{
+    ViewData["Title"] = Model.Offer.Title;
+    var offer = Model.Offer;
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <h3 class="card-title">@offer.Title</h3>
+                    <span class="badge bg-success fs-6">@offer.Status</span>
+                </div>
+                <p class="text-muted mt-2">@(offer.Description ?? "No description")</p>
+                <hr />
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <dl>
+                            <dt>Original Price</dt>
+                            <dd class="text-decoration-line-through text-muted fs-5">@offer.OriginalPrice.ToString("C")</dd>
+                            <dt>Discounted Price</dt>
+                            <dd class="text-success fw-bold fs-4">@offer.DiscountedPrice.ToString("C")</dd>
+                            <dt>You Save</dt>
+                            <dd class="text-danger fw-bold">@((offer.OriginalPrice - offer.DiscountedPrice).ToString("C")) (@(((offer.OriginalPrice - offer.DiscountedPrice) / offer.OriginalPrice * 100).ToString("F0"))% off)</dd>
+                        </dl>
+                    </div>
+                    <div class="col-md-6">
+                        <dl>
+                            <dt>Remaining Quantity</dt>
+                            <dd>
+                                @if (offer.RemainingQuantity > 0)
+                                {
+                                    <span class="text-success fw-bold fs-5">@offer.RemainingQuantity</span> <span class="text-muted">/ @offer.MaxQuantity</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger fs-6">Sold Out</span>
+                                }
+                            </dd>
+                            <dt>Expires</dt>
+                            <dd>@offer.ExpirationDate.ToString("yyyy-MM-dd")</dd>
+                            <dt>Seller</dt>
+                            <dd>@offer.SellerUserName</dd>
+                            <dt>Listed</dt>
+                            <dd>@offer.CreatedAt.ToString("yyyy-MM-dd")</dd>
+                        </dl>
+                    </div>
+                </div>
+
+                @if (offer.Categories.Any())
+                {
+                    <div class="mt-2">
+                        <strong>Categories:</strong>
+                        @foreach (var cat in offer.Categories)
+                        {
+                            <span class="badge bg-secondary me-1">@cat</span>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+
+        @* Action area *@
+        <div class="card shadow mt-3">
+            <div class="card-body">
+                @if (offer.RemainingQuantity <= 0)
+                {
+                    <div class="alert alert-danger mb-0">
+                        <i class="bi bi-exclamation-triangle-fill"></i> <strong>Sold Out</strong> — This offer has no remaining coupons available.
+                    </div>
+                }
+                else if (Model.HasActiveReservation)
+                {
+                    <div class="alert alert-info">
+                        <i class="bi bi-bookmark-check-fill"></i> <strong>You have an active reservation!</strong>
+                        @if (Model.ReservationValidUntil.HasValue)
+                        {
+                            <br />
+                            <small>Valid until: <strong>@Model.ReservationValidUntil.Value.ToString("yyyy-MM-dd HH:mm")</strong></small>
+                        }
+                    </div>
+                    <div class="d-flex gap-2">
+                        @if (Model.CanPurchase)
+                        {
+                            <form asp-action="Purchase" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="offerId" value="@offer.Id" />
+                                <button type="submit" class="btn btn-success"
+                                        onclick="return confirm('Purchase this coupon?');">
+                                    <i class="bi bi-bag-check"></i> Purchase Coupon
+                                </button>
+                            </form>
+                        }
+                        <a asp-controller="Reservations" asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="bi bi-clock-history"></i> View My Reservations
+                        </a>
+                    </div>
+                }
+                else if (Model.CanReserve)
+                {
+                    <p class="text-muted mb-3">Reserve this offer to lock in your spot. You can then purchase the coupon from your reservations page.</p>
+                    <form asp-action="Reserve" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="offerId" value="@offer.Id" />
+                        <input type="hidden" name="rowVersion" value="@offer.RowVersion" />
+                        <button type="submit" class="btn btn-primary"
+                                onclick="return confirm('Reserve this offer?');">
+                            <i class="bi bi-bookmark-plus"></i> Reserve Offer
+                        </button>
+                    </form>
+                }
+                else
+                {
+                    <div class="alert alert-warning mb-0">
+                        <i class="bi bi-info-circle"></i> This offer is currently not available for reservation.
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="mt-3">
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Offers
+            </a>
+        </div>
+    </div>
+</div>
+

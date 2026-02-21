@@ -177,6 +177,12 @@ namespace Discounts.Infra.Migrations
                     b.Property<int>("RemainingQuantity")
                         .HasColumnType("int");
 
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
                     b.Property<int>("SellerId")
                         .HasColumnType("int");
 
