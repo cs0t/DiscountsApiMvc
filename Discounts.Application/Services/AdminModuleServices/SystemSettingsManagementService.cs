@@ -58,7 +58,7 @@ public class SystemSettingsManagementService : ISystemSettingsManagementService
         var setting = await _settingRepository.GetById(command.Id, ct);
         
         if (setting is null)
-            throw new ApplicationException("Setting not found !");
+            throw new SettingNotFoundException("Setting not found !");
 
         setting.SettingValue = command.NewSettingValue;
         await _settingRepository.SaveChangesAsync(ct);

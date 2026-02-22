@@ -70,6 +70,9 @@ public class UserManagementService : IUserManagementService
         var user = await _userRepository.GetById(updateUserCommand.UserId, ct);
         if (user is null)
             throw new UserNotFoundException("User not found");
+        
+        if(user.RoleId == (int)RoleEnum.Administrator)
+            throw new ForbiddenException("You cannot update another administrator !");
 
         if (!string.IsNullOrEmpty(updateUserCommand.Password) || !string.IsNullOrEmpty(updateUserCommand.ConfirmPassword))
         {
