@@ -23,6 +23,7 @@
       <ProjectReference Include="..\Discounts.Domain\Discounts.Domain.csproj" />
       <ProjectReference Include="..\Discounts.Infra\Discounts.Infra.csproj" />
       <ProjectReference Include="..\Discounts.Application\Discounts.Application.csproj" />
+      <ProjectReference Include="..\Discounts.WorkerService\Discounts.WorkerService.csproj" />
     </ItemGroup>
 
 </Project>

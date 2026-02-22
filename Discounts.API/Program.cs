@@ -7,6 +7,7 @@ using Discounts.Application.Validators.Offers;
 using Discounts.Infra.Persistence;
 using Discounts.Infra.Persistence.Seeding;
 using Discounts.Infra.Security;
+using Discounts.WorkerService.Extensions;
 using FluentValidation;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +18,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddApplicationDbContext(builder.Configuration);
 //builder.Services.AddMemoryCache();
 builder.Services.AddInfrastructure();
+builder.Services.AddHostedServices();
 builder.Services.AddApplication();
 
 //add jwt 
