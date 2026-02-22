@@ -6,7 +6,6 @@ using Discounts.Application.Interfaces.RepositoryContracts;
 using Discounts.Application.Models;
 using Discounts.Domain.Constants;
 using Discounts.Domain.Entities;
-using FluentValidation;
 
 namespace Discounts.Application.Services.AdminModuleServices;
 
@@ -14,22 +13,15 @@ public class UserManagementService : IUserManagementService
 {
     private readonly IUserRepository _userRepository;
     private readonly IRoleRepository _roleRepository;
-    private readonly IValidator<ManageUserCreationCommand> _createUserValidator;
-    private readonly IValidator<ManageUserUpdateCommand> _updateUserValidator;
 
-    public UserManagementService(IUserRepository userRepository, IRoleRepository roleRepository, IValidator<ManageUserCreationCommand> createUserValidator, IValidator<ManageUserUpdateCommand> updateUserValidator)
+    public UserManagementService(IUserRepository userRepository, IRoleRepository roleRepository)
     {
         _userRepository = userRepository;
         _roleRepository = roleRepository;
-        _createUserValidator = createUserValidator;
-        _updateUserValidator = updateUserValidator;
     }
     
     public async Task<int> CreateUserAsync(int adminId, ManageUserCreationCommand createUserCommand, CancellationToken ct = default)
     {
-        var createValidation = await _createUserValidator.ValidateAsync(createUserCommand, ct);
-        if (!createValidation.IsValid)
-            throw new FluentValidation.ValidationException(createValidation.Errors);
         var admin = await _userRepository.GetWithRolesAsync(adminId, ct);
         
         if(admin is null)
@@ -68,9 +60,6 @@ public class UserManagementService : IUserManagementService
 
     public async Task<int> UpdateUserAsync(int adminId, ManageUserUpdateCommand updateUserCommand, CancellationToken ct = default)
     {
-        var updateValidation = await _updateUserValidator.ValidateAsync(updateUserCommand, ct);
-        if (!updateValidation.IsValid)
-            throw new FluentValidation.ValidationException(updateValidation.Errors);
         var admin = await _userRepository.GetWithRolesAsync(adminId, ct);
         if (admin is null)
             throw new UserNotFoundException("Admin not found");

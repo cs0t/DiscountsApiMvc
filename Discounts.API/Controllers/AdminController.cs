@@ -1,6 +1,5 @@
 using System.Linq;
 using System.Security.Claims;
-using Discounts.API.Requests.AdminRequests;
 using Discounts.Application.Commands;
 using Discounts.Application.Interfaces.AdminModuleContracts;
 using Discounts.Application.Models;
@@ -48,17 +47,15 @@ public class AdminController : ControllerBase
     }
 
     [HttpPost("categories")]
-    public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryRequest request, CancellationToken ct = default)
+    public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryCommand command, CancellationToken ct = default)
     {
-        var command = _mapper.Map<CreateCategoryCommand>(request);
         var id = await _categoryService.CreateCategoryAsync(GetAdminId(), command, ct);
         return CreatedAtAction(null, new { id }, id);
     }
 
     [HttpPut("categories")]
-    public async Task<IActionResult> UpdateCategory([FromBody] UpdateCategoryRequest request, CancellationToken ct = default)
+    public async Task<IActionResult> UpdateCategory([FromBody] UpdateCategoryCommand command, CancellationToken ct = default)
     {
-        var command = _mapper.Map<UpdateCategoryCommand>(request);
         await _categoryService.UpdateCategoryAsync(GetAdminId(), command, ct);
         return NoContent();
     }
@@ -81,17 +78,15 @@ public class AdminController : ControllerBase
     }
 
     [HttpPost("system-settings")]
-    public async Task<IActionResult> CreateSystemSetting([FromBody] CreateSystemSettingRequest request, CancellationToken ct = default)
+    public async Task<IActionResult> CreateSystemSetting([FromBody] CreateSystemSettingCommand command, CancellationToken ct = default)
     {
-        var command = _mapper.Map<CreateSystemSettingCommand>(request);
         var id = await _settingsService.CreateSystemSettingAsync(GetAdminId(), command, ct);
         return CreatedAtAction(null, new { id }, id);
     }
 
     [HttpPut("system-settings")]
-    public async Task<IActionResult> UpdateSystemSetting([FromBody] UpdateSystemSettingRequest request, CancellationToken ct = default)
+    public async Task<IActionResult> UpdateSystemSetting([FromBody] UpdateSystemSettingCommand command, CancellationToken ct = default)
     {
-        var command = _mapper.Map<UpdateSystemSettingCommand>(request);
         await _settingsService.UpdateSystemSettingAsync(GetAdminId(), command, ct);
         return NoContent();
     }
@@ -107,17 +102,15 @@ public class AdminController : ControllerBase
     }
 
     [HttpPost("users")]
-    public async Task<IActionResult> CreateUser([FromBody] ManageUserCreationRequest request, CancellationToken ct = default)
+    public async Task<IActionResult> CreateUser([FromBody] ManageUserCreationCommand command, CancellationToken ct = default)
     {
-        var command = _mapper.Map<ManageUserCreationCommand>(request);
         var id = await _userService.CreateUserAsync(GetAdminId(), command, ct);
         return CreatedAtAction(null, new { id }, id);
     }
 
     [HttpPut("users")]
-    public async Task<IActionResult> UpdateUser([FromBody] ManageUserUpdateRequest request, CancellationToken ct = default)
+    public async Task<IActionResult> UpdateUser([FromBody] ManageUserUpdateCommand command, CancellationToken ct = default)
     {
-        var command = _mapper.Map<ManageUserUpdateCommand>(request);
         await _userService.UpdateUserAsync(GetAdminId(), command, ct);
         return NoContent();
     }
@@ -147,9 +140,9 @@ public class AdminController : ControllerBase
     }
 
     [HttpPost("offers/reject/{offerId:int}")]
-    public async Task<IActionResult> RejectOffer(int offerId, [FromBody] RejectOfferRequest request, CancellationToken ct = default)
+    public async Task<IActionResult> RejectOffer(int offerId, [FromBody] RejectOfferCommand command, CancellationToken ct = default)
     {
-        var command = new RejectOfferCommand { OfferId = offerId, Reason = request.Reason };
+        command.OfferId = offerId;
         await _offerAdminService.RejectOfferAsync(GetAdminId(), command, ct);
         return NoContent();
     }

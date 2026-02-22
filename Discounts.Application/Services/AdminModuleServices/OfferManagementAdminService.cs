@@ -7,7 +7,6 @@ using Discounts.Application.Interfaces.RepositoryContracts;
 using Discounts.Application.Models;
 using Discounts.Domain.Constants;
 using Discounts.Domain.Entities;
-using FluentValidation;
 
 namespace Discounts.Application.Services.AdminModuleServices;
 
@@ -15,13 +14,11 @@ public class OfferManagementAdminService : IOfferManagementAdminService
 {
     private readonly IUserRepository _userRepository;
     private readonly IOfferRepository _offerRepository;
-    private readonly IValidator<RejectOfferCommand> _rejectOfferValidator;
 
-    public OfferManagementAdminService(IUserRepository userRepository, IOfferRepository offerRepository, IValidator<RejectOfferCommand> rejectOfferValidator)
+    public OfferManagementAdminService(IUserRepository userRepository, IOfferRepository offerRepository)
     {
         _userRepository = userRepository;
         _offerRepository = offerRepository;
-        _rejectOfferValidator = rejectOfferValidator;
     }
     
     public async Task ApproveOfferAsync(int adminId, int offerId, CancellationToken ct = default)
@@ -52,9 +49,6 @@ public class OfferManagementAdminService : IOfferManagementAdminService
 
     public async Task RejectOfferAsync(int adminId, RejectOfferCommand command, CancellationToken ct = default)
     {
-        var validationResult = await _rejectOfferValidator.ValidateAsync(command, ct);
-        if (!validationResult.IsValid)
-            throw new ValidationException(validationResult.Errors);
         var offerId = command.OfferId;
         var admin = await _userRepository.GetWithRolesAsync(adminId, ct);
         

@@ -11,6 +11,8 @@ using Discounts.WorkerService.Extensions;
 using FluentValidation;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
+using Discounts.API.Validation;
+using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +28,10 @@ builder.Services.AddJwtAuthentication(builder.Configuration);
 
 //add validation
 builder.Services.AddValidatorsFromAssemblyContaining<CreateOfferCommandValidator>();
+builder.Services.AddFluentValidationAutoValidation(config =>
+{
+    config.OverrideDefaultResultFactoryWith<CustomAutoValidationResultFactory>();
+});
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -53,6 +59,7 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
 
 app.MapControllers();
 

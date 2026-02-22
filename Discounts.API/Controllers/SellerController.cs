@@ -1,5 +1,4 @@
 using System.Security.Claims;
-using Discounts.API.Requests.SellerRequests;
 using Discounts.Application.Commands;
 using Discounts.Application.Interfaces.SellerModuleServiceContracts;
 using Discounts.Application.Models;
@@ -33,10 +32,9 @@ public class SellerController : ControllerBase
 
     [HttpPost]
     public async Task<IActionResult> CreateOffer(
-        [FromBody] CreateOfferRequest request, 
+        [FromBody] CreateOfferCommand command, 
         CancellationToken ct = default)
     {
-        var command = _mapper.Map<CreateOfferCommand>(request);
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var offer = await _offerManagementService.CreateOfferAsync(command, userId,ct);
         var offerdto = _mapper.Map<OfferDetailsDto>(offer);
@@ -45,10 +43,9 @@ public class SellerController : ControllerBase
     
     [HttpPut]
     public async Task<IActionResult> UpdateOffer(
-        [FromBody] UpdateOfferRequest request, 
+        [FromBody] UpdateOfferCommand command, 
         CancellationToken ct = default)
     {
-        var command = _mapper.Map<UpdateOfferCommand>(request);
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var offer = await _offerManagementService.UpdateOfferAsync(command, userId,ct);
         return Ok(_mapper.Map<OfferDetailsDto>(offer));

@@ -7,7 +7,6 @@ using Discounts.Application.Interfaces.RepositoryContracts;
 using Discounts.Application.Models;
 using Discounts.Domain.Constants;
 using Discounts.Domain.Entities;
-using FluentValidation;
 
 namespace Discounts.Application.Services.AdminModuleServices;
 
@@ -15,22 +14,15 @@ public class CategoryManagementService : ICategoryManagementService
 {
     private readonly IUserRepository _userRepository;
     private readonly ICategoryRepository _categoryRepository;
-    private readonly IValidator<CreateCategoryCommand> _createValidator;
-    private readonly IValidator<UpdateCategoryCommand> _updateValidator;
 
-    public CategoryManagementService(IUserRepository userRepository, ICategoryRepository categoryRepository, IValidator<CreateCategoryCommand> createValidator, IValidator<UpdateCategoryCommand> updateValidator)
+    public CategoryManagementService(IUserRepository userRepository, ICategoryRepository categoryRepository)
     {
         _userRepository = userRepository;
         _categoryRepository = categoryRepository;
-        _createValidator = createValidator;
-        _updateValidator = updateValidator;
     }
     
     public async Task<int> CreateCategoryAsync(int adminId, CreateCategoryCommand command ,CancellationToken ct = default)
     {
-        var validationResult = await _createValidator.ValidateAsync(command, ct);
-        if (!validationResult.IsValid)
-            throw new FluentValidation.ValidationException(validationResult.Errors);
         var admin = await _userRepository.GetWithRolesAsync(adminId, ct);
         
         if(admin is null)

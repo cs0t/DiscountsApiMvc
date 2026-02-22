@@ -1,5 +1,4 @@
 using System.Security.Claims;
-using Discounts.API.Requests.AuthRequests;
 using Discounts.Application.Commands;
 using Discounts.Application.Interfaces.AuthContracts;
 using Discounts.Application.Models;
@@ -25,22 +24,20 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     [AllowAnonymous]
     public async Task<ActionResult<LoginResponse>> Login(
-        [FromBody] LoginRequest request, 
+        [FromBody] LoginCommand command, 
         CancellationToken ct = default)
     {
-        var loginCommand = _mapper.Map<LoginCommand>(request);
-        var response = await _authService.LoginAsync(loginCommand, ct);
+        var response = await _authService.LoginAsync(command, ct);
         return Ok(response);
     }
     
     [HttpPost("register")]
     [AllowAnonymous]
     public async Task<ActionResult<LoginResponse>> Register(
-        [FromBody] RegisterRequest request, 
+        [FromBody] RegisterCommand command, 
         CancellationToken ct = default)
     {
-        var registerCommand = _mapper.Map<RegisterCommand>(request);
-        var response = await _authService.RegisterAsync(registerCommand, ct);
+        var response = await _authService.RegisterAsync(command, ct);
         return Ok(response);
     }
     
