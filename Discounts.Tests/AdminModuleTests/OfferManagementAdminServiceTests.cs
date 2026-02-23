@@ -4,6 +4,7 @@ using Discounts.Application.Exceptions.OfferExceptions;
 using Discounts.Application.Exceptions.UserExceptions;
 using Discounts.Application.Interfaces.AdminModuleContracts;
 using Discounts.Application.Interfaces.RepositoryContracts;
+using Discounts.Application.Models;
 using Discounts.Application.Services.AdminModuleServices;
 using Discounts.Domain.Constants;
 using Discounts.Domain.Entities;

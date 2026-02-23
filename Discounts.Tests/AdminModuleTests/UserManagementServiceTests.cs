@@ -434,4 +434,16 @@ public class UserManagementServiceTests
         
         _userRepositoryMock.Verify(repo => repo.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
+    
+    [Fact]
+    public async Task GetSettingsPagedForAdminAsync_ShouldThrow_WhenNotAdmin()
+    {
+        var userId = 1;
+        
+        _userRepositoryMock.Setup(repo => repo.GetWithRolesAsync(userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new User { Id = userId, RoleId = (int)RoleEnum.Customer });
+        
+        var act = async() => await _userManagementService.GetSettingsPagedForAdminAsync(userId);
+        await act.Should().ThrowAsync<ForbiddenException>();
+    }
 }

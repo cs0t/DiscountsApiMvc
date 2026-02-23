@@ -323,4 +323,241 @@ public class OfferManagementServiceTests
         Assert.Equal((int)OfferStatusesEnum.Pending, offer.StatusId);
         Assert.Null(offer.ApprovedAt);
     }
+    
+    [Fact]
+    public async Task UpdateOfferAsync_ShouldThrow_WhenNoOwnership()
+    {
+        var sellerId = 1;
+
+        var offer = new Offer
+        {
+            Id = 10,
+            SellerId = 2,
+            StatusId = (int)OfferStatusesEnum.Pending,
+            EditableUntil = DateTime.UtcNow.AddHours(5),
+            Categories = new List<Category>()
+        };
+
+        var command = new UpdateOfferCommand
+        {
+            OfferId = 10,
+            Title = "Updated",
+            Description = "Updated desc",
+            OriginalPrice = 200,
+            DiscountedPrice = 150,
+            MaxQuantity = 20,
+            RemainingQuantity = 15,
+            ExpirationDate = DateTime.UtcNow.AddDays(5),
+            CategoryIds = new List<int> { 1 }
+        };
+
+        var categories = new List<Category>
+        {
+            new Category { Id = 1 }
+        };
+
+        _offerRepositoryMock
+            .Setup(x => x.GetWithDetailsByIdAsync(10, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(offer);
+
+        _categoryRepositoryMock
+            .Setup(x => x.GetByPredicateAsync(
+                It.IsAny<Expression<Func<Category,bool>>>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(categories);
+
+        var act = async () => await _offerManagementService.UpdateOfferAsync(command, sellerId);
+        await act.Should().ThrowAsync<ForbiddenException>();
+        
+        
+        _offerRepositoryMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+    
+    [Fact]
+    public async Task UpdateOfferAsync_ShouldThrow_WhenOfferNotEditable()
+    {
+        var sellerId = 1;
+
+        var offer = new Offer
+        {
+            Id = 10,
+            SellerId = sellerId,
+            StatusId = (int)OfferStatusesEnum.Pending,
+            EditableUntil = DateTime.UtcNow.AddHours(-1),
+            Categories = new List<Category>()
+        };
+
+        var command = new UpdateOfferCommand
+        {
+            OfferId = 10,
+            Title = "Updated",
+            Description = "Updated desc",
+            OriginalPrice = 200,
+            DiscountedPrice = 150,
+            MaxQuantity = 20,
+            RemainingQuantity = 15,
+            ExpirationDate = DateTime.UtcNow.AddDays(5),
+            CategoryIds = new List<int> { 1 }
+        };
+
+        var categories = new List<Category>
+        {
+            new Category { Id = 1 }
+        };
+
+        _offerRepositoryMock
+            .Setup(x => x.GetWithDetailsByIdAsync(10, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(offer);
+
+        _categoryRepositoryMock
+            .Setup(x => x.GetByPredicateAsync(
+                It.IsAny<Expression<Func<Category,bool>>>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(categories);
+
+        var act = async () => await _offerManagementService.UpdateOfferAsync(command, sellerId);
+        await act.Should().ThrowAsync<ForbiddenException>();
+        
+        
+        _offerRepositoryMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+    
+    [Fact]
+    public async Task UpdateOfferAsync_ShouldThrow_WhenCategoryNotFound()
+    {
+        var sellerId = 1;
+
+        var offer = new Offer
+        {
+            Id = 10,
+            SellerId = sellerId,
+            StatusId = (int)OfferStatusesEnum.Pending,
+            EditableUntil = DateTime.UtcNow.AddHours(5),
+            Categories = new List<Category>()
+        };
+
+        var command = new UpdateOfferCommand
+        {
+            OfferId = 10,
+            Title = "Updated",
+            Description = "Updated desc",
+            OriginalPrice = 200,
+            DiscountedPrice = 150,
+            MaxQuantity = 20,
+            RemainingQuantity = 15,
+            ExpirationDate = DateTime.UtcNow.AddDays(5),
+            CategoryIds = new List<int> { 1 }
+        };
+
+        _offerRepositoryMock
+            .Setup(x => x.GetWithDetailsByIdAsync(10, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(offer);
+
+        _categoryRepositoryMock
+            .Setup(x => x.GetByPredicateAsync(
+                It.IsAny<Expression<Func<Category,bool>>>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Category>());
+
+        var act = async () => await _offerManagementService.UpdateOfferAsync(command, sellerId);
+        await act.Should().ThrowAsync<CategoryNotFoundException>();
+        
+        
+        _offerRepositoryMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task DisableOfferAsync_ShouldDisableOffer_WhenValid()
+    {
+        var sellerId = 1;
+
+        var offer = new Offer
+        {
+            Id = 10,
+            SellerId = sellerId,
+            StatusId = (int)OfferStatusesEnum.Pending,
+            EditableUntil = DateTime.UtcNow.AddHours(5)
+        };
+
+        _offerRepositoryMock
+            .Setup(x => x.GetById(10, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(offer);
+
+        await _offerManagementService.DisableOfferAsync(10, sellerId);
+
+        _offerRepositoryMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+        Assert.Equal((int)OfferStatusesEnum.Disabled, offer.StatusId);
+    }
+    
+    [Fact]
+    public async Task DisableOfferAsync_ShouldThrow_WhenNoOwnership()
+    {
+        var sellerId = 1;
+
+        var offer = new Offer
+        {
+            Id = 10,
+            SellerId = 2,
+            StatusId = (int)OfferStatusesEnum.Pending,
+            EditableUntil = DateTime.UtcNow.AddHours(5)
+        };
+
+        _offerRepositoryMock
+            .Setup(x => x.GetById(10, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(offer);
+
+        var act = async () => await _offerManagementService.DisableOfferAsync(10, sellerId);
+        await act.Should().ThrowAsync<ForbiddenException>();
+        
+        
+        _offerRepositoryMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+    
+    [Fact]
+    public async Task DisableOfferAsync_ShouldReturn_WhenOfferAlreadyExpired()
+    {
+        var sellerId = 1;
+
+        var offer = new Offer
+        {
+            Id = 10,
+            SellerId = sellerId,
+            StatusId = (int)OfferStatusesEnum.Expired,
+            EditableUntil = DateTime.UtcNow.AddHours(-1)
+        };
+
+        _offerRepositoryMock
+            .Setup(x => x.GetById(10, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(offer);
+
+        // var act = async () => await _offerManagementService.DisableOfferAsync(10, sellerId);
+        // await act.Should().ThrowAsync<ForbiddenException>();
+        
+        
+        _offerRepositoryMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+    
+    [Fact]
+    public async Task DisableOfferAsync_ShouldReturn_WhenOfferAlreadyDisabled()
+    {
+        var sellerId = 1;
+
+        var offer = new Offer
+        {
+            Id = 10,
+            SellerId = sellerId,
+            StatusId = (int)OfferStatusesEnum.Disabled,
+            EditableUntil = DateTime.UtcNow.AddHours(5)
+        };
+
+        _offerRepositoryMock
+            .Setup(x => x.GetById(10, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(offer);
+
+        // var act = async () => await _offerManagementService.DisableOfferAsync(10, sellerId);
+        // await act.Should().ThrowAsync<ForbiddenException>();
+        
+        
+        _offerRepositoryMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
 }

@@ -314,4 +314,320 @@ public class CustomerServiceTests
 
         await act.Should().ThrowAsync<ApplicationException>();
     }
+    
+    [Fact]
+    public async Task CancelReservationAsync_ShouldCancelAndIncreaseQuantity_WhenValid()
+    {
+        var reservation = new Reservation
+        {
+            Id = 1,
+            UserId = 10,
+            OfferId = 5,
+            IsActive = true
+        };
+
+        var offer = new Offer
+        {
+            Id = 5,
+            StatusId = (int)OfferStatusesEnum.Approved,
+            RemainingQuantity = 2
+        };
+        
+        _unitOfWorkMock
+            .Setup(u => u.ExecuteInTransactionAsync(
+                It.IsAny<Func<Task>>(),
+                It.IsAny<CancellationToken>()))
+            .Returns<Func<Task>, CancellationToken>((action, _) => action());
+        
+        _reservationRepositoryMock
+            .Setup(x => x.GetById(1, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(reservation);
+
+        _offerRepositoryMock
+            .Setup(x => x.GetById(5, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(offer);
+
+        await _customerService.CancelReservationAsync(1, 10);
+
+        reservation.IsActive.Should().BeFalse();
+        reservation.CancelledAt.Should().NotBeNull();
+        offer.RemainingQuantity.Should().Be(3);
+    }
+    
+    [Fact]
+    public async Task CancelReservationAsync_ShouldThrow_WhenReservationNotFound()
+    {
+        _reservationRepositoryMock
+            .Setup(x => x.GetById(It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Reservation?)null);
+        
+        _unitOfWorkMock
+            .Setup(u => u.ExecuteInTransactionAsync(
+                It.IsAny<Func<Task>>(),
+                It.IsAny<CancellationToken>()))
+            .Returns<Func<Task>, CancellationToken>((action, _) => action());
+
+        await Assert.ThrowsAsync<ApplicationException>(() =>
+            _customerService.CancelReservationAsync(1, 10));
+    }
+    
+    [Fact]
+    public async Task CancelReservationAsync_ShouldThrow_WhenUserMismatch()
+    {
+        var reservation = new Reservation
+        {
+            Id = 1,
+            UserId = 99,
+            IsActive = true
+        };
+        
+        _unitOfWorkMock
+            .Setup(u => u.ExecuteInTransactionAsync(
+                It.IsAny<Func<Task>>(),
+                It.IsAny<CancellationToken>()))
+            .Returns<Func<Task>, CancellationToken>((action, _) => action());
+        
+        _reservationRepositoryMock
+            .Setup(x => x.GetById(1, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(reservation);
+
+        await Assert.ThrowsAsync<ApplicationException>(() =>
+            _customerService.CancelReservationAsync(1, 10));
+    }
+    
+    [Fact]
+    public async Task CancelReservationAsync_ShouldThrow_WhenNotActive()
+    {
+        var reservation = new Reservation
+        {
+            Id = 1,
+            UserId = 10,
+            IsActive = false
+        };
+        
+        _unitOfWorkMock
+            .Setup(u => u.ExecuteInTransactionAsync(
+                It.IsAny<Func<Task>>(),
+                It.IsAny<CancellationToken>()))
+            .Returns<Func<Task>, CancellationToken>((action, _) => action());
+
+        _reservationRepositoryMock
+            .Setup(x => x.GetById(1, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(reservation);
+
+        await Assert.ThrowsAsync<ApplicationException>(() =>
+            _customerService.CancelReservationAsync(1, 10));
+    }
+    
+    [Fact]
+    public async Task CancelReservationAsync_ShouldThrow_WhenOfferNotApproved()
+    {
+        var reservation = new Reservation
+        {
+            Id = 1,
+            UserId = 10,
+            OfferId = 5,
+            IsActive = true
+        };
+
+        var offer = new Offer
+        {
+            Id = 5,
+            StatusId = (int) OfferStatusesEnum.Pending 
+        };
+        
+        _unitOfWorkMock
+            .Setup(u => u.ExecuteInTransactionAsync(
+                It.IsAny<Func<Task>>(),
+                It.IsAny<CancellationToken>()))
+            .Returns<Func<Task>, CancellationToken>((action, _) => action());
+
+
+        _reservationRepositoryMock
+            .Setup(x => x.GetById(1, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(reservation);
+
+        _offerRepositoryMock
+            .Setup(x => x.GetById(5, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(offer);
+
+        await Assert.ThrowsAsync<ApplicationException>(() =>
+            _customerService.CancelReservationAsync(1, 10));
+    }
+    
+    [Fact]
+    public async Task GetOfferState_ShouldAllowReserve_WhenNoReservationAndStockAvailable()
+    {
+        var offer = new Offer
+        {
+            Id = 1,
+            StatusId = (int)OfferStatusesEnum.Approved,
+            RemainingQuantity = 5,
+            ExpirationDate = DateTime.UtcNow.AddDays(1)
+        };
+
+        var user = new User
+        {
+            Id = 10,
+            RoleId = (int)RoleEnum.Customer
+        };
+
+        _offerRepositoryMock
+            .Setup(x => x.GetWithDetailsByIdAsync(1, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(offer);
+
+        _userRepositoryMock
+            .Setup(x => x.GetWithRolesAsync(10, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(user);
+
+        _reservationRepositoryMock
+            .Setup(x => x.GetActiveReservationByUserIdAndOfferIdAsync(10, 1, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Reservation?)null);
+
+        var result = await _customerService.GetOfferStateForCustomerAsync(1, 10);
+
+        result.CanReserve.Should().BeTrue();
+        result.CanPurchase.Should().BeFalse();
+        result.HasActiveReservation.Should().BeFalse();
+    }
+    
+    [Fact]
+    public async Task GetOfferState_ShouldAllowPurchase_WhenReservationValid()
+    {
+        var reservation = new Reservation
+        {
+            IsActive = true,
+            ValidUntil = DateTime.UtcNow.AddMinutes(10)
+        };
+        
+        var offer = new Offer
+        {
+            Id = 1,
+            StatusId = (int)OfferStatusesEnum.Approved,
+            RemainingQuantity = 5,
+            ExpirationDate = DateTime.UtcNow.AddDays(1)
+        };
+        
+        var user = new User
+        {
+            Id = 10,
+            RoleId = (int)RoleEnum.Customer
+        };
+
+        _reservationRepositoryMock
+            .Setup(x => x.GetActiveReservationByUserIdAndOfferIdAsync(10, 1, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(reservation);
+        
+        _offerRepositoryMock
+            .Setup(x => x.GetWithDetailsByIdAsync(1, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(offer);
+
+        _userRepositoryMock
+            .Setup(x => x.GetWithRolesAsync(10, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(user);
+
+
+        var result = await _customerService.GetOfferStateForCustomerAsync(1, 10);
+
+        result.CanPurchase.Should().BeTrue();
+        result.CanReserve.Should().BeFalse();
+    }
+    
+    [Fact]
+    public async Task GetOfferState_ShouldThrow_WhenOfferNotFound()
+    {
+        _offerRepositoryMock
+            .Setup(x => x.GetWithDetailsByIdAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Offer?)null);
+
+        await Assert.ThrowsAsync<OfferNotFoundException>(() =>
+            _customerService.GetOfferStateForCustomerAsync(1, 10));
+    }
+    
+    [Fact]
+    public async Task GetOfferState_ShouldThrow_WhenUserNotCustomer()
+    {
+        var offer = new Offer
+        {
+            StatusId = (int)OfferStatusesEnum.Approved
+        };
+
+        var user = new User
+        {
+            RoleId = (int)RoleEnum.Seller
+        };
+
+        _offerRepositoryMock
+            .Setup(x => x.GetWithDetailsByIdAsync(1, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(offer);
+
+        _userRepositoryMock
+            .Setup(x => x.GetWithRolesAsync(10, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(user);
+
+        await Assert.ThrowsAsync<ApplicationException>(() =>
+            _customerService.GetOfferStateForCustomerAsync(1, 10));
+    }
+    
+    [Fact]
+    public async Task GetOfferState_ShouldShowSoldOut_WhenNoRemQuantity()
+    {
+        var offer = new Offer
+        {
+            Id = 1,
+            StatusId = (int)OfferStatusesEnum.Approved,
+            RemainingQuantity = 0,
+            ExpirationDate = DateTime.UtcNow.AddDays(1)
+        };
+
+        var user = new User
+        {
+            Id = 10,
+            RoleId = (int)RoleEnum.Customer
+        };
+
+        _offerRepositoryMock
+            .Setup(x => x.GetWithDetailsByIdAsync(1, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(offer);
+
+        _userRepositoryMock
+            .Setup(x => x.GetWithRolesAsync(10, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(user);
+
+        var result = await _customerService.GetOfferStateForCustomerAsync(1, 10);
+
+        result.CanReserve.Should().BeFalse();
+        result.CanPurchase.Should().BeFalse();
+    }
+    
+    [Fact]
+    public async Task GetOfferState_ShouldShowExpired_WhenPastExpiration()
+    {
+        var offer = new Offer
+        {
+            Id = 1,
+            StatusId = (int)OfferStatusesEnum.Approved,
+            RemainingQuantity = 5,
+            ExpirationDate = DateTime.UtcNow.AddDays(-1)
+        };
+
+        var user = new User
+        {
+            Id = 10,
+            RoleId = (int)RoleEnum.Customer
+        };
+
+        _offerRepositoryMock
+            .Setup(x => x.GetWithDetailsByIdAsync(1, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(offer);
+
+        _userRepositoryMock
+            .Setup(x => x.GetWithRolesAsync(10, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(user);
+
+        var result = await _customerService.GetOfferStateForCustomerAsync(1, 10);
+
+        result.CanReserve.Should().BeFalse();
+        result.CanPurchase.Should().BeFalse();
+    }
 }

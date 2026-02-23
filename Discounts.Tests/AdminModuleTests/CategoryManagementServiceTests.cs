@@ -4,6 +4,7 @@ using Discounts.Application.Exceptions;
 using Discounts.Application.Exceptions.CategoryExceptions;
 using Discounts.Application.Interfaces.AdminModuleContracts;
 using Discounts.Application.Interfaces.RepositoryContracts;
+using Discounts.Application.Models;
 using Discounts.Application.Services.AdminModuleServices;
 using Discounts.Domain.Constants;
 using Discounts.Domain.Entities;
@@ -134,5 +135,42 @@ public class CategoryManagementServiceTests
 
         _categoryRepositoryMock.Verify(repo => repo.Delete(existingCategory), Times.Once);
         _categoryRepositoryMock.Verify(repo => repo.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
+    
+    [Fact]
+    public async Task GetCategoriesPagedForAdminAsync_ShouldThrow_WhenNotAdmin()
+    {
+        var userId = 1;
+        
+        _userRepositoryMock.Setup(repo => repo.GetWithRolesAsync(userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new User { Id = userId, RoleId = (int)RoleEnum.Customer });
+        
+        var act = async () => await  _categoryManagementService.GetCategoriesPagedForAdminAsync(userId);
+        await act.Should().ThrowAsync<ForbiddenException>();
+    }
+    
+    [Fact]
+    public async Task GetCategoriesPagedForAdminAsync_ShouldReturnPagedCategories_WhenAdmin()
+    {
+        var userId = 1;
+        var pagedResult = new PagedResult<Category>
+        (
+            new List<Category>
+            {
+                new Category { Id = 1, Name = "Category 1", Description = "Description 1" },
+                new Category { Id = 2, Name = "Category 2", Description = "Description 2" }
+            },
+            2,1,8
+        );
+
+        _userRepositoryMock.Setup(repo => repo.GetWithRolesAsync(userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new User { Id = userId, RoleId = (int)RoleEnum.Administrator });
+
+        _categoryRepositoryMock.Setup(repo => repo.GetPagedAsync(1, 8, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(pagedResult);
+
+        var result = await _categoryManagementService.GetCategoriesPagedForAdminAsync(userId);
+
+        result.Should().BeEquivalentTo(pagedResult);
     }
 }
