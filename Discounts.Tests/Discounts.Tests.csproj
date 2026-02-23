@@ -23,10 +23,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="SellerModuleTests\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\Discounts.Application\Discounts.Application.csproj" />
       <ProjectReference Include="..\Discounts.Domain\Discounts.Domain.csproj" />
       <ProjectReference Include="..\Discounts.Infra\Discounts.Infra.csproj" />

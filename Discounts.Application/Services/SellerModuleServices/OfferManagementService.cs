@@ -43,7 +43,7 @@ public class OfferManagementService : IOfferManagementService
         var user = await _userRepository.GetWithRolesAsync(sellerId, ct);
         if (user is null || user.Role.Id != (int)RoleEnum.Seller)
         {
-            throw new UnauthorizedException("User is not authorized to create offers.");
+            throw new ForbiddenException("Only sellers can create offers !");
         }
         //validate categories
         var categories = new List<Category>();
