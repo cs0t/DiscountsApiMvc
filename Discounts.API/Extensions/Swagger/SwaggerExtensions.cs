@@ -1,18 +1,30 @@
+using Asp.Versioning.ApiExplorer;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Discounts.API.Extensions.Swagger;
 
-public static class SwaggerExtensions
+public class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOptions>
 {
-    public static SwaggerGenOptions AddSwaggerExtensions(this SwaggerGenOptions options)
+    private readonly IApiVersionDescriptionProvider _provider;
+
+    public ConfigureSwaggerOptions(IApiVersionDescriptionProvider provider)
     {
-        options.SwaggerDoc("v1",new OpenApiInfo
+        _provider = provider;
+    }
+
+    public void Configure(SwaggerGenOptions options)
+    {
+        foreach (var description in _provider.ApiVersionDescriptions)
         {
-            Title = "DiscountsAPI",
-            Version = "v1"
-        });
-        
+            options.SwaggerDoc(description.GroupName, new OpenApiInfo
+            {
+                Title = "DiscountsAPI",
+                Version = description.ApiVersion.ToString()
+            });
+        }
+
         //add jwt
         options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
         {
@@ -38,7 +50,5 @@ public static class SwaggerExtensions
                 Array.Empty<string>()
             }
         });
-
-        return options;
     }
 }
