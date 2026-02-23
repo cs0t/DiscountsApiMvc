@@ -3,61 +3,61 @@
     ViewData["Title"] = "Seller Dashboard";
 }
 
-<h2><i class="bi bi-shop"></i> Seller Dashboard</h2>
+<h2><i class="bi bi-shop" style="color: var(--theme-primary);"></i> Seller Dashboard</h2>
 <hr />
 
 <div class="row g-4">
     <div class="col-md-4">
-        <div class="card bg-primary text-white shadow">
+        <div class="card stat-card shadow">
             <div class="card-body text-center">
-                <i class="bi bi-collection display-4"></i>
-                <h3 class="mt-2">@Model.TotalOffers</h3>
-                <p>Total Offers</p>
+                <i class="bi bi-collection display-4 stat-icon"></i>
+                <h3 class="mt-2 stat-value">@Model.TotalOffers</h3>
+                <p class="stat-label">Total Offers</p>
             </div>
         </div>
     </div>
     <div class="col-md-4">
-        <div class="card bg-success text-white shadow">
+        <div class="card stat-card shadow">
             <div class="card-body text-center">
-                <i class="bi bi-check-circle display-4"></i>
-                <h3 class="mt-2">@Model.ApprovedOffers</h3>
-                <p>Approved Offers</p>
+                <i class="bi bi-check-circle display-4 stat-icon"></i>
+                <h3 class="mt-2 stat-value">@Model.ApprovedOffers</h3>
+                <p class="stat-label">Approved Offers</p>
             </div>
         </div>
     </div>
     <div class="col-md-4">
-        <div class="card bg-warning text-dark shadow">
+        <div class="card stat-card shadow">
             <div class="card-body text-center">
-                <i class="bi bi-hourglass-split display-4"></i>
-                <h3 class="mt-2">@Model.PendingOffers</h3>
-                <p>Pending Offers</p>
+                <i class="bi bi-hourglass-split display-4 stat-icon"></i>
+                <h3 class="mt-2 stat-value">@Model.PendingOffers</h3>
+                <p class="stat-label">Pending Offers</p>
             </div>
         </div>
     </div>
     <div class="col-md-4">
-        <div class="card bg-secondary text-white shadow">
+        <div class="card stat-card shadow">
             <div class="card-body text-center">
-                <i class="bi bi-clock-history display-4"></i>
-                <h3 class="mt-2">@Model.ExpiredOffers</h3>
-                <p>Expired Offers</p>
+                <i class="bi bi-clock-history display-4 stat-icon"></i>
+                <h3 class="mt-2 stat-value">@Model.ExpiredOffers</h3>
+                <p class="stat-label">Expired Offers</p>
             </div>
         </div>
     </div>
     <div class="col-md-4">
-        <div class="card bg-info text-white shadow">
+        <div class="card stat-card shadow">
             <div class="card-body text-center">
-                <i class="bi bi-ticket-perforated display-4"></i>
-                <h3 class="mt-2">@Model.TotalCouponsSold</h3>
-                <p>Coupons Sold</p>
+                <i class="bi bi-ticket-perforated display-4 stat-icon"></i>
+                <h3 class="mt-2 stat-value">@Model.TotalCouponsSold</h3>
+                <p class="stat-label">Coupons Sold</p>
             </div>
         </div>
     </div>
     <div class="col-md-4">
-        <div class="card bg-dark text-white shadow">
+        <div class="card stat-card shadow">
             <div class="card-body text-center">
-                <i class="bi bi-currency-dollar display-4"></i>
-                <h3 class="mt-2">@Model.TotalIncome.ToString("C")</h3>
-                <p>Total Income</p>
+                <i class="bi bi-currency-dollar display-4 stat-icon"></i>
+                <h3 class="mt-2 stat-value">@Model.TotalIncome.ToString("C")</h3>
+                <p class="stat-label">Total Income</p>
             </div>
         </div>
     </div>
@@ -67,10 +67,10 @@
     <a asp-controller="Offers" asp-action="Index" class="btn btn-primary me-2">
         <i class="bi bi-tag"></i> My Offers
     </a>
-    <a asp-controller="Offers" asp-action="Create" class="btn btn-success me-2">
+    <a asp-controller="Offers" asp-action="Create" class="btn btn-primary me-2">
         <i class="bi bi-plus-lg"></i> New Offer
     </a>
-    <a asp-controller="Sales" asp-action="Index" class="btn btn-info">
+    <a asp-controller="Sales" asp-action="Index" class="btn btn-outline-primary">
         <i class="bi bi-receipt"></i> Sales History
     </a>
 </div>

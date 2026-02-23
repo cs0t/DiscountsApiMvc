@@ -22,7 +22,7 @@
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Categories</label>
-                    <select name="CategoryIds" class="form-select" multiple size="3">
+                    <select name="CategoryIds" class="form-select" multiple>
                         @if (filter?.AvailableCategories != null)
                         {
                             @foreach (var cat in filter.AvailableCategories)
@@ -83,7 +83,7 @@ else
                                 <div class="mb-2">
                                     @foreach (var cat in offer.Categories)
                                     {
-                                        <span class="badge bg-secondary me-1">@cat</span>
+                                        <span class="badge badge-theme me-1">@cat</span>
                                     }
                                 </div>
                             }

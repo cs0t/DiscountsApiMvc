@@ -10,7 +10,7 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-start">
                     <h3 class="card-title">@offer.Title</h3>
-                    <span class="badge bg-success fs-6">@offer.Status</span>
+                    <span class="badge badge-theme fs-6">@offer.Status</span>
                 </div>
                 <p class="text-muted mt-2">@(offer.Description ?? "No description")</p>
                 <hr />
@@ -55,7 +55,7 @@
                         <strong>Categories:</strong>
                         @foreach (var cat in offer.Categories)
                         {
-                            <span class="badge bg-secondary me-1">@cat</span>
+                            <span class="badge badge-theme me-1">@cat</span>
                         }
                     </div>
                 }

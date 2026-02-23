@@ -3,7 +3,7 @@
 }
 
 <div class="text-center py-5">
-    <h1 class="display-4 fw-bold">Welcome to the Discounts Platform</h1>
+    <h1 class="display-4 fw-bold">Discounts</h1>
     <p class="lead text-muted">Find the best deals, manage offers, and save money.</p>
 
     @if (User.Identity?.IsAuthenticated != true)
@@ -22,13 +22,13 @@
         <div class="mt-4">
             @if (User.IsInRole("Admin"))
             {
-                <a class="btn btn-dark btn-lg" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+                <a class="btn btn-primary btn-lg" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
                     <i class="bi bi-shield-lock"></i> Go to Admin Dashboard
                 </a>
             }
             @if (User.IsInRole("Seller"))
             {
-                <a class="btn btn-success btn-lg" asp-area="Seller" asp-controller="Dashboard" asp-action="Index">
+                <a class="btn btn-primary btn-lg" asp-area="Seller" asp-controller="Dashboard" asp-action="Index">
                     <i class="bi bi-shop"></i> Go to Seller Dashboard
                 </a>
             }
@@ -46,7 +46,7 @@
     <div class="col-md-4">
         <div class="card shadow-sm">
             <div class="card-body">
-                <i class="bi bi-tags-fill display-4 text-primary"></i>
+                <i class="bi bi-tags-fill display-4 feature-icon"></i>
                 <h5 class="card-title mt-3">Great Discounts</h5>
                 <p class="card-text">Find amazing deals from verified sellers.</p>
             </div>
@@ -55,7 +55,7 @@
     <div class="col-md-4">
         <div class="card shadow-sm">
             <div class="card-body">
-                <i class="bi bi-shield-check display-4 text-success"></i>
+                <i class="bi bi-shield-check display-4 feature-icon"></i>
                 <h5 class="card-title mt-3">Verified Offers</h5>
                 <p class="card-text">All offers are reviewed and approved by admins.</p>
             </div>
@@ -64,7 +64,7 @@
     <div class="col-md-4">
         <div class="card shadow-sm">
             <div class="card-body">
-                <i class="bi bi-ticket-perforated-fill display-4 text-warning"></i>
+                <i class="bi bi-ticket-perforated-fill display-4 feature-icon"></i>
                 <h5 class="card-title mt-3">Digital Coupons</h5>
                 <p class="card-text">Get your coupons instantly after purchase.</p>
             </div>

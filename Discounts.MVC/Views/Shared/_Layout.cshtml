@@ -4,16 +4,20 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>@ViewData["Title"] - Discounts</title>
+    <link rel="icon" type="image/png" href="~/favicon.ico" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet"/>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
 </head>
 <body>
 <header>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+    <nav class="navbar navbar-expand-lg navbar-light navbar-themed shadow-sm">
         <div class="container-fluid">
-            <a class="navbar-brand fw-bold" asp-area="" asp-controller="Home" asp-action="Index">
-                <i class="bi bi-tag-fill"></i> Discounts
+            <a class="navbar-brand d-flex align-items-center" asp-area="" asp-controller="Home" asp-action="Index">
+                <img src="https://images.eu.ctfassets.net/psnuheg7hu1m/2naQr5wRk6zwV8nxO2EgFf/debc16ae60c6dd82b8d83b74863a80dc/tbcge-logo.svg"
+                     alt="Logo" class="navbar-logo" />
+                Discounts
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain"
                     aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
@@ -73,14 +77,14 @@
                     @if (User.Identity?.IsAuthenticated == true)
                     {
                         <li class="nav-item">
-                            <span class="nav-link text-light">
+                            <span class="nav-link user-info">
                                 <i class="bi bi-person-circle"></i> @User.Identity.Name (@User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value)
                             </span>
                         </li>
                         <li class="nav-item">
                             <form asp-controller="Account" asp-action="Logout" asp-area="" method="post" class="d-inline">
                                 @Html.AntiForgeryToken()
-                                <button type="submit" class="btn btn-outline-light btn-sm mt-1">
+                                <button type="submit" class="btn btn-outline-danger btn-sm mt-1">
                                     <i class="bi bi-box-arrow-right"></i> Logout
                                 </button>
                             </form>
@@ -125,12 +129,13 @@
     </main>
 </div>
 
-<footer class="border-top footer text-muted mt-5 py-3">
+<footer class="border-top footer footer-themed text-muted mt-5 py-3">
     <div class="container text-center">
-        &copy; @DateTime.Now.Year - Discounts Platform
+        &copy; @DateTime.Now.Year - Discounts.IT Academy
     </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 <script src="~/js/site.js" asp-append-version="true"></script>
 @await RenderSectionAsync("Scripts", required: false)
 </body>

@@ -54,10 +54,9 @@
             </div>
             <div class="mb-3">
                 <label asp-for="CategoryIds" class="form-label"></label>
-                <select asp-for="CategoryIds" asp-items="Model.AvailableCategories" class="form-select" multiple size="5">
+                <select asp-for="CategoryIds" asp-items="Model.AvailableCategories" class="form-select" multiple>
                 </select>
                 <span asp-validation-for="CategoryIds" class="text-danger"></span>
-                <small class="text-muted">Hold Ctrl to select multiple categories</small>
             </div>
             <button type="submit" class="btn btn-warning"><i class="bi bi-check-lg"></i> Update Offer</button>
             <a asp-action="Index" class="btn btn-secondary">Cancel</a>

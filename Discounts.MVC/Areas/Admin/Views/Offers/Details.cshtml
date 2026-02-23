@@ -29,7 +29,7 @@
                     <div class="col-md-6">
                         <dl>
                             <dt>Status</dt>
-                            <dd><span class="badge bg-info">@(Model.Status?.Name ?? "N/A")</span></dd>
+                            <dd><span class="badge badge-theme">@(Model.Status?.Name ?? "N/A")</span></dd>
                             <dt>Created</dt>
                             <dd>@Model.CreatedAt.ToString("yyyy-MM-dd HH:mm")</dd>
                             <dt>Expires</dt>
@@ -53,7 +53,7 @@
                         <strong>Categories:</strong>
                         @foreach (var cat in Model.Categories)
                         {
-                            <span class="badge bg-secondary me-1">@cat.Name</span>
+                            <span class="badge badge-theme me-1">@cat.Name</span>
                         }
                     </div>
                 }
