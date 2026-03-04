@@ -4,6 +4,7 @@ using Discounts.Infra.Extensions;
 using Discounts.Infra.Persistence;
 using Discounts.Infra.Persistence.Seeding;
 using Discounts.Infra.Security;
+using Discounts.MVC.Validation;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
@@ -23,6 +24,9 @@ builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSet
 
 // FluentValidation
 builder.Services.AddValidatorsFromAssemblyContaining<CreateOfferCommandValidator>();
+
+// Command validation service — validates Application commands via FluentValidation in MVC controllers
+builder.Services.AddScoped<ICommandValidationService, CommandValidationService>();
 
 // Cookie Authentication
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

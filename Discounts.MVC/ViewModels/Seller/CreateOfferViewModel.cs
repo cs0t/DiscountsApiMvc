@@ -6,10 +6,10 @@ namespace Discounts.MVC.ViewModels.Seller;
 public class CreateOfferViewModel
 {
     [Required(ErrorMessage = "Title is required")]
-    [StringLength(200, MinimumLength = 3)]
+    [MaxLength(200, ErrorMessage = "Title cannot exceed 200 characters")]
     public string Title { get; set; } = null!;
 
-    [StringLength(1000)]
+    [MaxLength(1000, ErrorMessage = "Description cannot exceed 1000 characters")]
     public string? Description { get; set; }
 
     [Required(ErrorMessage = "Original price is required")]

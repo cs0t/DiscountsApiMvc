@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Discounts.Application.Commands;
 using Discounts.Application.Interfaces.AuthContracts;
+using Discounts.MVC.Validation;
 using Discounts.MVC.ViewModels.Account;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -11,10 +12,12 @@ namespace Discounts.MVC.Controllers;
 public class AccountController : Controller
 {
     private readonly IAuthService _authService;
+    private readonly ICommandValidationService _commandValidator;
 
-    public AccountController(IAuthService authService)
+    public AccountController(IAuthService authService, ICommandValidationService commandValidator)
     {
         _authService = authService;
+        _commandValidator = commandValidator;
     }
 
     [HttpGet]
@@ -40,6 +43,9 @@ public class AccountController : Controller
                 Email = model.Email,
                 Password = model.Password
             };
+
+            if (!await _commandValidator.ValidateAndAddErrorsAsync(command, ModelState))
+                return View(model);
 
             var response = await _authService.LoginAsync(command);
 
@@ -99,6 +105,9 @@ public class AccountController : Controller
                 Password = model.Password,
                 ConfirmPassword = model.ConfirmPassword
             };
+
+            if (!await _commandValidator.ValidateAndAddErrorsAsync(command, ModelState))
+                return View(model);
 
             var response = await _authService.RegisterAsync(command);
 

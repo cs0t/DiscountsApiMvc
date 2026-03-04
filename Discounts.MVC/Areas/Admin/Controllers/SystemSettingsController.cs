@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Discounts.Application.Commands;
 using Discounts.Application.Interfaces.AdminModuleContracts;
 using Discounts.Application.Interfaces.RepositoryContracts;
+using Discounts.MVC.Validation;
 using Discounts.MVC.ViewModels.Admin;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,13 +15,16 @@ public class SystemSettingsController : Controller
 {
     private readonly ISystemSettingsManagementService _settingsService;
     private readonly ISystemSettingsRepository _settingsRepository;
+    private readonly ICommandValidationService _commandValidator;
 
     public SystemSettingsController(
         ISystemSettingsManagementService settingsService,
-        ISystemSettingsRepository settingsRepository)
+        ISystemSettingsRepository settingsRepository,
+        ICommandValidationService commandValidator)
     {
         _settingsService = settingsService;
         _settingsRepository = settingsRepository;
+        _commandValidator = commandValidator;
     }
 
     private int GetAdminId() => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -51,6 +55,10 @@ public class SystemSettingsController : Controller
                 Key = model.Key,
                 SettingValue = model.SettingValue
             };
+
+            if (!await _commandValidator.ValidateAndAddErrorsAsync(command, ModelState, ct))
+                return View(model);
+
             await _settingsService.CreateSystemSettingAsync(GetAdminId(), command, ct);
             TempData["Success"] = "Setting created successfully.";
             return RedirectToAction(nameof(Index));
@@ -91,6 +99,10 @@ public class SystemSettingsController : Controller
                 Id = model.Id,
                 NewSettingValue = model.NewSettingValue
             };
+
+            if (!await _commandValidator.ValidateAndAddErrorsAsync(command, ModelState, ct))
+                return View(model);
+
             await _settingsService.UpdateSystemSettingAsync(GetAdminId(), command, ct);
             TempData["Success"] = "Setting updated successfully.";
             return RedirectToAction(nameof(Index));

@@ -3,6 +3,7 @@ using Discounts.Application.Commands;
 using Discounts.Application.Interfaces.AdminModuleContracts;
 using Discounts.Application.Interfaces.RepositoryContracts;
 using Discounts.Application.Models;
+using Discounts.MVC.Validation;
 using Discounts.MVC.ViewModels.Admin;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,15 +18,18 @@ public class UsersController : Controller
     private readonly IUserManagementService _userService;
     private readonly IUserRepository _userRepository;
     private readonly IRoleRepository _roleRepository;
+    private readonly ICommandValidationService _commandValidator;
 
     public UsersController(
         IUserManagementService userService,
         IUserRepository userRepository,
-        IRoleRepository roleRepository)
+        IRoleRepository roleRepository,
+        ICommandValidationService commandValidator)
     {
         _userService = userService;
         _userRepository = userRepository;
         _roleRepository = roleRepository;
+        _commandValidator = commandValidator;
     }
 
     private int GetAdminId() => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -74,6 +78,13 @@ public class UsersController : Controller
                 ConfirmPassword = model.ConfirmPassword,
                 RoleId = model.RoleId
             };
+
+            if (!await _commandValidator.ValidateAndAddErrorsAsync(command, ModelState, ct))
+            {
+                model.Roles = await GetRoleSelectList(ct);
+                return View(model);
+            }
+
             await _userService.CreateUserAsync(GetAdminId(), command, ct);
             TempData["Success"] = "User created successfully.";
             return RedirectToAction(nameof(Index));
@@ -124,6 +135,13 @@ public class UsersController : Controller
                 ConfirmPassword = model.ConfirmPassword,
                 RoleId = model.RoleId
             };
+
+            if (!await _commandValidator.ValidateAndAddErrorsAsync(command, ModelState, ct))
+            {
+                model.Roles = await GetRoleSelectList(ct);
+                return View(model);
+            }
+
             await _userService.UpdateUserAsync(GetAdminId(), command, ct);
             TempData["Success"] = "User updated successfully.";
             return RedirectToAction(nameof(Index));

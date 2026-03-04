@@ -3,6 +3,7 @@ using Discounts.Application.Commands;
 using Discounts.Application.Interfaces.AdminModuleContracts;
 using Discounts.Application.Interfaces.RepositoryContracts;
 using Discounts.Application.Models;
+using Discounts.MVC.Validation;
 using Discounts.MVC.ViewModels.Admin;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,13 +16,16 @@ public class OffersController : Controller
 {
     private readonly IOfferManagementAdminService _offerAdminService;
     private readonly IOfferRepository _offerRepository;
+    private readonly ICommandValidationService _commandValidator;
 
     public OffersController(
         IOfferManagementAdminService offerAdminService,
-        IOfferRepository offerRepository)
+        IOfferRepository offerRepository,
+        ICommandValidationService commandValidator)
     {
         _offerAdminService = offerAdminService;
         _offerRepository = offerRepository;
+        _commandValidator = commandValidator;
     }
 
     private int GetAdminId() => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -105,6 +109,10 @@ public class OffersController : Controller
                 OfferId = model.OfferId,
                 Reason = model.Reason
             };
+
+            if (!await _commandValidator.ValidateAndAddErrorsAsync(command, ModelState, ct))
+                return View(model);
+
             await _offerAdminService.RejectOfferAsync(GetAdminId(), command, ct);
             TempData["Success"] = "Offer rejected successfully.";
             return RedirectToAction(nameof(Index));

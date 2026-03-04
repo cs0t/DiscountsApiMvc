@@ -3,6 +3,7 @@ using Discounts.Application.Commands;
 using Discounts.Application.Interfaces.RepositoryContracts;
 using Discounts.Application.Interfaces.SellerModuleServiceContracts;
 using Discounts.Application.Queries;
+using Discounts.MVC.Validation;
 using Discounts.MVC.ViewModels.Seller;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,13 +17,16 @@ public class OffersController : Controller
 {
     private readonly IOfferManagementService _offerService;
     private readonly ICategoryRepository _categoryRepository;
+    private readonly ICommandValidationService _commandValidator;
 
     public OffersController(
         IOfferManagementService offerService,
-        ICategoryRepository categoryRepository)
+        ICategoryRepository categoryRepository,
+        ICommandValidationService commandValidator)
     {
         _offerService = offerService;
         _categoryRepository = categoryRepository;
+        _commandValidator = commandValidator;
     }
 
     private int GetSellerId() => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -83,6 +87,13 @@ public class OffersController : Controller
                 ExpirationDate = model.ExpirationDate,
                 CategoryIds = model.CategoryIds
             };
+
+            if (!await _commandValidator.ValidateAndAddErrorsAsync(command, ModelState, ct))
+            {
+                model.AvailableCategories = await GetCategorySelectList(ct);
+                return View(model);
+            }
+
             await _offerService.CreateOfferAsync(command, GetSellerId(), ct);
             TempData["Success"] = "Offer created successfully.";
             return RedirectToAction(nameof(Index));
@@ -147,6 +158,13 @@ public class OffersController : Controller
                 ExpirationDate = model.ExpirationDate,
                 CategoryIds = model.CategoryIds
             };
+
+            if (!await _commandValidator.ValidateAndAddErrorsAsync(command, ModelState, ct))
+            {
+                model.AvailableCategories = await GetCategorySelectList(ct);
+                return View(model);
+            }
+
             await _offerService.UpdateOfferAsync(command, GetSellerId(), ct);
             TempData["Success"] = "Offer updated successfully.";
             return RedirectToAction(nameof(Index));

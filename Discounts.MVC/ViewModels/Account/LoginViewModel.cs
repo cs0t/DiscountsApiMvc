@@ -5,7 +5,7 @@ namespace Discounts.MVC.ViewModels.Account;
 public class LoginViewModel
 {
     [Required(ErrorMessage = "Email is required")]
-    [EmailAddress(ErrorMessage = "Invalid email format")]
+    [EmailAddress(ErrorMessage = "Email must be a valid email address")]
     public string Email { get; set; } = null!;
 
     [Required(ErrorMessage = "Password is required")]

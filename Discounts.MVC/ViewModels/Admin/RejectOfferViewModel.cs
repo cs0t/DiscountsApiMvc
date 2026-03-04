@@ -8,8 +8,8 @@ public class RejectOfferViewModel
     
     public string? OfferTitle { get; set; }
 
-    [Required(ErrorMessage = "Rejection reason is required")]
-    [StringLength(500, MinimumLength = 5, ErrorMessage = "Reason must be between 5 and 500 characters")]
+    [Required(ErrorMessage = "Reason is required.")]
+    [MaxLength(500, ErrorMessage = "Reason must not exceed 500 characters.")]
     public string Reason { get; set; } = null!;
 }
 

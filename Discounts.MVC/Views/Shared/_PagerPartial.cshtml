@@ -1,11 +1,10 @@
 @model dynamic
-@{
-    int totalCount = Model.TotalCount;
-    int pageNumber = Model.PageNumber;
-    int pageSize = Model.PageSize;
-    bool hasNext = Model.HasNext;
-    bool hasPrevious = Model.HasPrevious;
-    int totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+@{int totalCount = Model.TotalCount;
+  int pageNumber = Model.PageNumber;
+  int pageSize = Model.PageSize;
+  bool hasNext = Model.HasNext;
+  bool hasPrevious = Model.HasPrevious;
+  int totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
 }
 
 @if (totalPages > 1)

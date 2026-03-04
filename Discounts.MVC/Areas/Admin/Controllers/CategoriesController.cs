@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Discounts.Application.Commands;
 using Discounts.Application.Interfaces.AdminModuleContracts;
 using Discounts.Application.Interfaces.RepositoryContracts;
+using Discounts.MVC.Validation;
 using Discounts.MVC.ViewModels.Admin;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,13 +15,16 @@ public class CategoriesController : Controller
 {
     private readonly ICategoryManagementService _categoryService;
     private readonly ICategoryRepository _categoryRepository;
+    private readonly ICommandValidationService _commandValidator;
 
     public CategoriesController(
         ICategoryManagementService categoryService,
-        ICategoryRepository categoryRepository)
+        ICategoryRepository categoryRepository,
+        ICommandValidationService commandValidator)
     {
         _categoryService = categoryService;
         _categoryRepository = categoryRepository;
+        _commandValidator = commandValidator;
     }
 
     private int GetAdminId() => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -51,6 +55,10 @@ public class CategoriesController : Controller
                 Name = model.Name,
                 Description = model.Description
             };
+
+            if (!await _commandValidator.ValidateAndAddErrorsAsync(command, ModelState, ct))
+                return View(model);
+
             await _categoryService.CreateCategoryAsync(GetAdminId(), command, ct);
             TempData["Success"] = "Category created successfully.";
             return RedirectToAction(nameof(Index));
@@ -92,6 +100,10 @@ public class CategoriesController : Controller
                 NewName = model.NewName,
                 NewDescription = model.NewDescription
             };
+
+            if (!await _commandValidator.ValidateAndAddErrorsAsync(command, ModelState, ct))
+                return View(model);
+
             await _categoryService.UpdateCategoryAsync(GetAdminId(), command, ct);
             TempData["Success"] = "Category updated successfully.";
             return RedirectToAction(nameof(Index));
