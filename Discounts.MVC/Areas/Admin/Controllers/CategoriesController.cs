@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Discounts.Application.Commands;
+using Discounts.Application.Commands.AdminCommands;
 using Discounts.Application.Interfaces.AdminModuleContracts;
 using Discounts.Application.Interfaces.RepositoryContracts;
 using Discounts.MVC.Validation;
@@ -50,11 +51,11 @@ public class CategoriesController : Controller
 
         try
         {
-            var command = new CreateCategoryCommand
-            {
-                Name = model.Name,
-                Description = model.Description
-            };
+            var command = new CreateCategoryCommand(model.Name, model.Description);
+            // {
+            //     Name = model.Name,
+            //     Description = model.Description
+            // };
 
             if (!await _commandValidator.ValidateAndAddErrorsAsync(command, ModelState, ct))
                 return View(model);
