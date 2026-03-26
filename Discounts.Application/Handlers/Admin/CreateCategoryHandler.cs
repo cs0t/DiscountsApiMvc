@@ -3,7 +3,7 @@ using Discounts.Application.Interfaces.RepositoryContracts;
 using Discounts.Domain.Entities;
 using MediatR;
 
-namespace Discounts.Application.RequestHandlers.Admin;
+namespace Discounts.Application.Handlers.Admin;
 
 public class CreateCategoryHandler(ICategoryRepository categoryRepository)
     : IRequestHandler<CreateCategoryCommand, int>

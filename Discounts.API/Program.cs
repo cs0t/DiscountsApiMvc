@@ -14,7 +14,7 @@ using FluentValidation;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Discounts.API.Validation;
-using Discounts.Application.RequestHandlers.Admin;
+using Discounts.Application.Handlers.Admin;
 using Microsoft.Extensions.Options;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 using Swashbuckle.AspNetCore.SwaggerGen;
