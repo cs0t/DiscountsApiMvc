@@ -1,5 +1,5 @@
 using Discounts.Application.Commands;
-using Discounts.Application.Commands.AdminCommands;
+using Discounts.Application.Commands.Admin;
 using Discounts.Application.Models;
 using Discounts.Domain.Entities;
 

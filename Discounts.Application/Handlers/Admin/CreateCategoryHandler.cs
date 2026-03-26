@@ -1,4 +1,4 @@
-using Discounts.Application.Commands.AdminCommands;
+using Discounts.Application.Commands.Admin;
 using Discounts.Application.Interfaces.RepositoryContracts;
 using Discounts.Domain.Entities;
 using MediatR;

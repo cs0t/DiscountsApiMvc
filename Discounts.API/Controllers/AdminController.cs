@@ -1,7 +1,7 @@
 using System.Linq;
 using System.Security.Claims;
 using Discounts.Application.Commands;
-using Discounts.Application.Commands.AdminCommands;
+using Discounts.Application.Commands.Admin;
 using Discounts.Application.Interfaces.AdminModuleContracts;
 using Discounts.Application.Models;
 using MapsterMapper;
