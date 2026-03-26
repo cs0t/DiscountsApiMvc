@@ -1,4 +1,5 @@
 using Discounts.Application.Commands.Admin;
+using Discounts.Application.Commands.Admin.Users;
 using Discounts.Application.Exceptions;
 using Discounts.Application.Exceptions.UserExceptions;
 using Discounts.Application.Interfaces.AdminModuleContracts;

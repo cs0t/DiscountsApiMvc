@@ -1,4 +1,6 @@
 using Discounts.Application.Commands;
+using Discounts.Application.Commands.Admin;
+using Discounts.Application.Commands.Admin.Offers;
 using Discounts.Application.Exceptions;
 using Discounts.Application.Exceptions.OfferExceptions;
 using Discounts.Application.Exceptions.UserExceptions;

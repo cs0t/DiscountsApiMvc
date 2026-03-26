@@ -1,9 +1,9 @@
-using Discounts.Application.Commands.Admin;
+using Discounts.Application.Commands.Admin.Categories;
 using Discounts.Application.Exceptions.CategoryExceptions;
 using Discounts.Application.Interfaces.RepositoryContracts;
 using MediatR;
 
-namespace Discounts.Application.Handlers.Admin;
+namespace Discounts.Application.Handlers.Admin.Categories;
 
 public class UpdateCategoryHandler(ICategoryRepository categoryRepository) 
     : IRequestHandler<UpdateCategoryCommand>

@@ -1,9 +1,9 @@
-using Discounts.Application.Commands.Admin;
+using Discounts.Application.Commands.Admin.Users;
 using Discounts.Application.Interfaces.RepositoryContracts;
 using Discounts.Domain.Entities;
 using MediatR;
 
-namespace Discounts.Application.Handlers.Admin;
+namespace Discounts.Application.Handlers.Admin.Users;
 
 public class CreateUserHandler(IUserRepository userRepository, IRoleRepository roleRepository) 
     : IRequestHandler<ManageUserCreationCommand, int>

@@ -1,4 +1,5 @@
 using Discounts.Application.Commands.Admin;
+using Discounts.Application.Commands.Admin.Users;
 using FluentValidation;
 
 namespace Discounts.Application.Validators.Admin;

@@ -4,7 +4,7 @@ using Discounts.Application.Queries.Admin;
 using Discounts.Domain.Entities;
 using MediatR;
 
-namespace Discounts.Application.Handlers.Admin;
+namespace Discounts.Application.Handlers.Admin.Users;
 
 public class GetUsersPagedAdminHandler(IUserRepository repository) 
     : IRequestHandler<GetUsersPagedAdminQuery,PagedResult<User>>

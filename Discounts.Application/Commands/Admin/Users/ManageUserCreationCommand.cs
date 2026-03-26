@@ -2,7 +2,7 @@ using Discounts.Application.Interfaces.BehaviorContracts;
 using Discounts.Domain.Constants;
 using MediatR;
 
-namespace Discounts.Application.Commands.Admin;
+namespace Discounts.Application.Commands.Admin.Users;
 
 public sealed record ManageUserCreationCommand
     (string UserName, string Email, string Password, string ConfirmPassword, int RoleId) : IRequest<int>, IRequireRole

@@ -1,11 +1,11 @@
-using Discounts.Application.Commands.Admin;
+using Discounts.Application.Commands.Admin.Users;
 using Discounts.Application.Exceptions;
 using Discounts.Application.Exceptions.UserExceptions;
 using Discounts.Application.Interfaces.RepositoryContracts;
 using Discounts.Domain.Constants;
 using MediatR;
 
-namespace Discounts.Application.Handlers.Admin;
+namespace Discounts.Application.Handlers.Admin.Users;
 
 public class UpdateUserHandler(IUserRepository userRepository, IRoleRepository roleRepository) 
     : IRequestHandler<ManageUserUpdateCommand, int>

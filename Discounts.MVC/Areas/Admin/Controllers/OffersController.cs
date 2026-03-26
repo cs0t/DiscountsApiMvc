@@ -1,5 +1,7 @@
 using System.Security.Claims;
 using Discounts.Application.Commands;
+using Discounts.Application.Commands.Admin;
+using Discounts.Application.Commands.Admin.Offers;
 using Discounts.Application.Interfaces.AdminModuleContracts;
 using Discounts.Application.Interfaces.RepositoryContracts;
 using Discounts.Application.Models;

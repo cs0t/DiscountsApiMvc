@@ -1,9 +1,9 @@
-using Discounts.Application.Commands.Admin;
+using Discounts.Application.Commands.Admin.Categories;
 using Discounts.Application.Interfaces.RepositoryContracts;
 using Discounts.Domain.Entities;
 using MediatR;
 
-namespace Discounts.Application.Handlers.Admin;
+namespace Discounts.Application.Handlers.Admin.Categories;
 
 public class CreateCategoryHandler(ICategoryRepository categoryRepository)
     : IRequestHandler<CreateCategoryCommand, int>
