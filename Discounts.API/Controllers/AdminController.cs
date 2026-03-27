@@ -1,7 +1,5 @@
-using System.Linq;
 using System.Security.Claims;
 using Discounts.Application.Commands;
-using Discounts.Application.Commands.Admin;
 using Discounts.Application.Commands.Admin.Categories;
 using Discounts.Application.Commands.Admin.Offers;
 using Discounts.Application.Commands.Admin.Users;
@@ -146,7 +144,7 @@ public class AdminController : ControllerBase
     [HttpPost("offers/reject/{offerId:int}")]
     public async Task<IActionResult> RejectOffer(int offerId, [FromBody] RejectOfferCommand command, CancellationToken ct = default)
     {
-        command.OfferId = offerId;
+        //command.OfferId = offerId;
         await _offerAdminService.RejectOfferAsync(GetAdminId(), command, ct);
         return NoContent();
     }

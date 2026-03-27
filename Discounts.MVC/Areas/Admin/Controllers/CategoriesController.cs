@@ -97,11 +97,11 @@ public class CategoriesController : Controller
         try
         {
             var command = new UpdateCategoryCommand
-            {
-                Id = model.Id,
-                NewName = model.NewName,
-                NewDescription = model.NewDescription
-            };
+            (
+                model.Id,
+                model.NewName,
+                model.NewDescription
+            );
 
             if (!await _commandValidator.ValidateAndAddErrorsAsync(command, ModelState, ct))
                 return View(model);

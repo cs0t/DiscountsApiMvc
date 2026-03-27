@@ -28,4 +28,10 @@
       <ProjectReference Include="..\Discounts.Infra\Discounts.Infra.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="HandlerTests\Admin\Categories\" />
+      <Folder Include="HandlerTests\Admin\Offers\" />
+      <Folder Include="HandlerTests\Admin\Users\" />
+    </ItemGroup>
+
 </Project>

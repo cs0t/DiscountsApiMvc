@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Discounts.Application.Commands;
+using Discounts.Application.Commands.Admin.Users;
 using Discounts.Application.Interfaces.AdminModuleContracts;
 using Discounts.Application.Interfaces.RepositoryContracts;
 using Discounts.Application.Models;
@@ -71,13 +72,13 @@ public class UsersController : Controller
         try
         {
             var command = new ManageUserCreationCommand
-            {
-                UserName = model.UserName,
-                Email = model.Email,
-                Password = model.Password,
-                ConfirmPassword = model.ConfirmPassword,
-                RoleId = model.RoleId
-            };
+            (
+                model.UserName,
+                model.Email,
+                model.Password,
+                model.ConfirmPassword,
+                model.RoleId
+            );
 
             if (!await _commandValidator.ValidateAndAddErrorsAsync(command, ModelState, ct))
             {
@@ -127,14 +128,14 @@ public class UsersController : Controller
         try
         {
             var command = new ManageUserUpdateCommand
-            {
-                UserId = model.UserId,
-                UserName = model.UserName,
-                Email = model.Email,
-                Password = model.Password,
-                ConfirmPassword = model.ConfirmPassword,
-                RoleId = model.RoleId
-            };
+            (
+                model.UserId,
+                model.UserName,
+                model.Email,
+                model.Password,
+                model.ConfirmPassword,
+                model.RoleId
+            );
 
             if (!await _commandValidator.ValidateAndAddErrorsAsync(command, ModelState, ct))
             {

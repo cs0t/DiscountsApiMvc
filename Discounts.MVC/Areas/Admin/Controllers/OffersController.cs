@@ -107,10 +107,10 @@ public class OffersController : Controller
         try
         {
             var command = new RejectOfferCommand
-            {
-                OfferId = model.OfferId,
-                Reason = model.Reason
-            };
+            (
+                model.OfferId,
+                model.Reason
+            );
 
             if (!await _commandValidator.ValidateAndAddErrorsAsync(command, ModelState, ct))
                 return View(model);

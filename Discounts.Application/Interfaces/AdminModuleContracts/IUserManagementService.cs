@@ -1,4 +1,4 @@
-using Discounts.Application.Commands;
+using Discounts.Application.Commands.Admin.Users;
 using Discounts.Application.Models;
 using Discounts.Domain.Entities;
 

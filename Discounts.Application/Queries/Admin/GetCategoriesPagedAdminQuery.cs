@@ -6,7 +6,7 @@ using MediatR;
 
 namespace Discounts.Application.Queries.Admin;
 
-public class GetCategoriesPagedAdminQuery(int pageNumber = 1, int pageSize = 8) 
+public sealed record GetCategoriesPagedAdminQuery(int pageNumber = 1, int pageSize = 8) 
     : IRequest<PagedResult<Category>>, IPagedQuery, IRequireRole
 {
     public int PageNumber =>  pageNumber;
