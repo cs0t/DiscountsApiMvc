@@ -29,7 +29,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="HandlerTests\Admin\Categories\" />
       <Folder Include="HandlerTests\Admin\Offers\" />
       <Folder Include="HandlerTests\Admin\Users\" />
     </ItemGroup>
