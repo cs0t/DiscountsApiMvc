@@ -11,6 +11,6 @@ public class GetUsersPagedAdminHandler(IUserRepository repository)
 {
     public Task<PagedResult<User>> Handle(GetUsersPagedAdminQuery query, CancellationToken ct =  default)
     {
-        return  repository.GetPagedAsync(query.pageNumber, query.pageSize, ct);
+        return  repository.GetPagedAsync(query.PageNumber, query.PageSize, ct);
     }
 }

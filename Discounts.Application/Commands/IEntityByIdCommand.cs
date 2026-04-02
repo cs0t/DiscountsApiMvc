@@ -2,5 +2,5 @@ namespace Discounts.Application.Commands;
 
 public interface IEntityByIdCommand
 {
-    int Id { get; }
+    int Id { get; init; }
 }

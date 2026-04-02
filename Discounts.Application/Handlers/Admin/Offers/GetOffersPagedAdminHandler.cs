@@ -11,6 +11,6 @@ public class GetOffersPagedAdminHandler(IOfferRepository offerRepository)
 {
     public Task<PagedResult<Offer>> Handle(GetOffersPagedAdminQuery query, CancellationToken ct = default)
     {
-        return offerRepository.GetPagedAsync(query.pageNumber, query.pageSize, ct);
+        return offerRepository.GetPagedAsync(query.PageNumber, query.PageSize, ct);
     }
 }

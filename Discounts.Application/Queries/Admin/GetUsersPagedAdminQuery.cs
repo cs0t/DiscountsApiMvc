@@ -6,10 +6,8 @@ using MediatR;
 
 namespace Discounts.Application.Queries.Admin;
 
-public sealed record GetUsersPagedAdminQuery(int pageNumber = 1, int pageSize = 8) 
+public sealed record GetUsersPagedAdminQuery(int PageNumber = 1, int PageSize = 8) 
     : IRequest<PagedResult<User>>, IRequireRole, IPagedQuery
 {
     public RoleEnum RoleRequired =>  RoleEnum.Administrator;
-    public int PageNumber => pageNumber;
-    public int PageSize =>  pageSize;
 }

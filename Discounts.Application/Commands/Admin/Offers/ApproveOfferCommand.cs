@@ -4,8 +4,7 @@ using MediatR;
 
 namespace Discounts.Application.Commands.Admin.Offers;
 
-public sealed record ApproveOfferCommand(int id) : IRequest, IRequireRole, IEntityByIdCommand
+public sealed record ApproveOfferCommand(int Id) : IRequest, IRequireRole, IEntityByIdCommand
 {
     public RoleEnum RoleRequired => RoleEnum.Administrator;
-    public int Id => id;
 }

@@ -4,8 +4,7 @@ using MediatR;
 
 namespace Discounts.Application.Commands.Admin.Categories;
 
-public sealed record DeleteCategoryCommand(int id) : IRequest,IRequireRole,IEntityByIdCommand
+public sealed record DeleteCategoryCommand(int Id) : IRequest,IRequireRole,IEntityByIdCommand
 {
     public RoleEnum RoleRequired => RoleEnum.Administrator;
-    public int Id => id;
 }
