@@ -10,7 +10,14 @@ namespace Discounts.Tests.HandlerTests.Admin.Categories;
 
 public class CreateCategoryHandlerTests
 {
-    private readonly Mock<ICategoryRepository> _categoryRepositoryMock = new();
+    private readonly Mock<ICategoryRepository> _categoryRepositoryMock;
+    private readonly CreateCategoryHandler _handler;
+    
+    public CreateCategoryHandlerTests()
+    {
+        _categoryRepositoryMock = new Mock<ICategoryRepository>();
+        _handler = new CreateCategoryHandler(_categoryRepositoryMock.Object);
+    }
 
     [Fact]
     public async Task CreateCategoryHandler_ShouldThrowException_WhenCategoryWithSameNameExists()
@@ -20,7 +27,7 @@ public class CreateCategoryHandlerTests
                 repo.ExistsAsync(It.IsAny<Expression<Func<Category, bool>>>(),  It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
         
-        var handler = new CreateCategoryHandler(_categoryRepositoryMock.Object);
         var command = new CreateCategoryCommand ("Existing Category", null);
+        await Assert.ThrowsAsync<ApplicationException>(() => _handler.Handle(command, CancellationToken.None));
     }
 }
