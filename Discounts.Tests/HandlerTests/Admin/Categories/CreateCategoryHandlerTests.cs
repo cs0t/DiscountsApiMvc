@@ -30,4 +30,27 @@ public class CreateCategoryHandlerTests
         var command = new CreateCategoryCommand ("Existing Category", null);
         await Assert.ThrowsAsync<ApplicationException>(() => _handler.Handle(command, CancellationToken.None));
     }
+
+    [Fact]
+    public async Task CreateCategoryHandler_ShouldCreateCategory_WhenCategoryDoesNotExist()
+    {
+        
+        _categoryRepositoryMock.Setup(repo => 
+            repo.ExistsAsync(It.IsAny<Expression<Func<Category, bool>>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        _categoryRepositoryMock
+            .Setup(repo => repo.Add(It.IsAny<Category>(), It.IsAny<CancellationToken>()))
+            .Callback(() => _categoryRepositoryMock)
+            .Returns(Task.CompletedTask);
+        
+        _categoryRepositoryMock
+            .Setup(repo => repo.SaveChangesAsync(It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        
+            
+        var command = new CreateCategoryCommand ("New Category", null);
+        
+        
+    }
 }

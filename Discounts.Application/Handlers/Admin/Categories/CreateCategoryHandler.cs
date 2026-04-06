@@ -10,12 +10,6 @@ public class CreateCategoryHandler(ICategoryRepository categoryRepository)
 {
     public async Task<int> Handle(CreateCategoryCommand command, CancellationToken ct = default)
     { 
-        // var admin = await userRepository.GetWithRolesAsync(adminId, ct) 
-        //             ?? throw new UserNotFoundException("Admin not found !");
-        //
-        // if (admin.RoleId != (int)RoleEnum.Administrator)
-        //     throw new ForbiddenException("This user does not have admin permissions !");
-
         if (await categoryRepository.ExistsAsync(c=>c.Name == command.Name, ct))
             throw new ApplicationException("Category already exists !");
 
