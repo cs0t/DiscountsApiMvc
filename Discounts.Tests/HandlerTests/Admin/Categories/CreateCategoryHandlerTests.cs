@@ -34,14 +34,16 @@ public class CreateCategoryHandlerTests
     [Fact]
     public async Task CreateCategoryHandler_ShouldCreateCategory_WhenCategoryDoesNotExist()
     {
+        var addedCategory = new Category();
         
         _categoryRepositoryMock.Setup(repo => 
             repo.ExistsAsync(It.IsAny<Expression<Func<Category, bool>>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
-
+        
         _categoryRepositoryMock
             .Setup(repo => repo.Add(It.IsAny<Category>(), It.IsAny<CancellationToken>()))
-            .Callback(() => _categoryRepositoryMock)
+            .Callback<Category,CancellationToken>
+                ((c,_) => addedCategory = c)
             .Returns(Task.CompletedTask);
         
         _categoryRepositoryMock
@@ -49,8 +51,11 @@ public class CreateCategoryHandlerTests
             .Returns(Task.CompletedTask);
         
             
-        var command = new CreateCategoryCommand ("New Category", null);
+        var command = new CreateCategoryCommand ("New Category", "Desc");
+        var result  = await _handler.Handle(command, CancellationToken.None);
         
-        
+        Assert.Equal(addedCategory.Id, result);
+        Assert.Equal("New Category", addedCategory.Name);
+        Assert.Equal("Desc", addedCategory.Description);
     }
 }
