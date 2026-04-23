@@ -3,10 +3,6 @@ using Discounts.Infra.Persistence;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Discounts.Infra.UnitOfWork;
-
-public class EfUnitOfWork(ApplicationDbContext context) : IUnitOfWork
-{
-
     // public async Task SaveChangesAsync(CancellationToken ct = default)
     //     await _context.SaveChangesAsync(ct);
     // }
@@ -26,41 +22,49 @@ public class EfUnitOfWork(ApplicationDbContext context) : IUnitOfWork
     //         throw;
     //     }
     // }
-    
-    private  IDbContextTransaction? _transaction;
+
+public class EfUnitOfWork : IUnitOfWork
+{
+    private readonly ApplicationDbContext _context;
+    private IDbContextTransaction? _transaction;
+
+    public EfUnitOfWork(ApplicationDbContext context)
+    {
+        _context = context;
+    }
 
     public async Task BeginTransactionAsync(CancellationToken ct = default)
     {
-        _transaction = await context.Database.BeginTransactionAsync(ct);   
+        if (_transaction is not null) 
+            throw new InvalidOperationException("The transaction has already started!");
+        _transaction = await _context.Database.BeginTransactionAsync(ct);   
     }
 
     public async Task CommitAsync(CancellationToken ct = default)
     {
+        if (_transaction is null)
+            throw new InvalidOperationException("The are no active transactions!");
+        
         try
         {
-            await context.SaveChangesAsync(ct);
-            if (_transaction is not null)
-                await _transaction.CommitAsync(ct);
+            await _context.SaveChangesAsync(ct);
+            await _transaction.CommitAsync(ct);
         }
         catch
         {
-            if (_transaction is not null)
-                await _transaction.RollbackAsync(ct);
+            await _transaction.RollbackAsync(ct);
             throw;
         }
         finally
         {
-            if (_transaction is not null)
-            {
-                await _transaction.DisposeAsync();
-                _transaction = null;
-            }
+            await _transaction.DisposeAsync();
+            _transaction = null;
         }
     }
 
     public async Task SaveChangesAsync(CancellationToken ct = default)
     {
-        await context.SaveChangesAsync(ct);
+        await _context.SaveChangesAsync(ct);
     }
 
     public async Task RollbackAsync(CancellationToken ct = default)
@@ -75,7 +79,11 @@ public class EfUnitOfWork(ApplicationDbContext context) : IUnitOfWork
 
     public async ValueTask DisposeAsync()
     {
-        if (_transaction != null) await _transaction.DisposeAsync();
-        await context.DisposeAsync();
+        if (_transaction is not null)
+        {
+            await _transaction.DisposeAsync();
+            _transaction = null;
+        }
+        await _context.DisposeAsync();
     }
 }
