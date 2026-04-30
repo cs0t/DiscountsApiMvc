@@ -1,6 +1,5 @@
 using System.Security.Claims;
 using Discounts.Application.Interfaces.AuthContracts;
-using Discounts.Domain.Constants;
 using Microsoft.AspNetCore.Http;
 
 namespace Discounts.Infra.Security;
