@@ -20,8 +20,6 @@
     <ItemGroup>
       <Folder Include="Commands\CustomerCommands\" />
       <Folder Include="Commands\SellerCommands\" />
-      <Folder Include="Handlers\Customer\Offers\" />
-      <Folder Include="Handlers\Customer\Reservations\" />
       <Folder Include="Handlers\Seller\" />
     </ItemGroup>
 
