@@ -1,5 +1,6 @@
 using Discounts.Application.Interfaces.BehaviorContracts;
 using Discounts.Domain.Constants;
+using Discounts.Domain.Entities;
 using MediatR;
 
 namespace Discounts.Application.Commands.SellerCommands.Offers;
@@ -11,7 +12,7 @@ public sealed record CreateOfferCommand(
     decimal DiscountedPrice,
     int MaxQuantity,
     DateTime ExpirationDate,
-    IReadOnlyCollection<int> CategoryIds) : IRequest<int>, IRequireRole
+    IReadOnlyCollection<int> CategoryIds) : IRequireRole, IRequest<Offer>
 {
     public RoleEnum RoleRequired => RoleEnum.Seller;
 }
