@@ -35,7 +35,7 @@ public class CleanupService : BackgroundService
                 
                 var now = DateTime.UtcNow;
                 //start transaction
-                using var transaction = await context.Database.BeginTransactionAsync(ct);
+                await using var transaction = await context.Database.BeginTransactionAsync(ct);
                 
                 try 
                 {
