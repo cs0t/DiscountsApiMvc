@@ -1,4 +1,5 @@
-using Discounts.Application.Commands;
+using Discounts.Application.Commands.Admin;
+using Discounts.Application.Commands.Admin.Users;
 using Discounts.Application.Exceptions;
 using Discounts.Application.Exceptions.UserExceptions;
 using Discounts.Application.Interfaces.AdminModuleContracts;
@@ -115,6 +116,7 @@ public class UserManagementService : IUserManagementService
         await _userRepository.SaveChangesAsync(ct);
         return user.Id;
     }
+    
     public async Task BlockUserAsync(int adminId, int userId, CancellationToken ct = default)
     {
         var admin = await _userRepository.GetWithRolesAsync(adminId, ct);

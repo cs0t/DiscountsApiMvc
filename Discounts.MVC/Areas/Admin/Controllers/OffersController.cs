@@ -1,5 +1,7 @@
 using System.Security.Claims;
 using Discounts.Application.Commands;
+using Discounts.Application.Commands.Admin;
+using Discounts.Application.Commands.Admin.Offers;
 using Discounts.Application.Interfaces.AdminModuleContracts;
 using Discounts.Application.Interfaces.RepositoryContracts;
 using Discounts.Application.Models;
@@ -105,10 +107,10 @@ public class OffersController : Controller
         try
         {
             var command = new RejectOfferCommand
-            {
-                OfferId = model.OfferId,
-                Reason = model.Reason
-            };
+            (
+                model.OfferId,
+                model.Reason
+            );
 
             if (!await _commandValidator.ValidateAndAddErrorsAsync(command, ModelState, ct))
                 return View(model);

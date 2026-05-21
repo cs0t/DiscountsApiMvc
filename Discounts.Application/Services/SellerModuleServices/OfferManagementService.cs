@@ -11,7 +11,7 @@ using Discounts.Application.Queries;
 using Discounts.Domain.Constants;
 using Discounts.Domain.Entities;
 
-namespace Discounts.Application.Services.SellerModuleServices;
+namespace Discounts.Application.Services.SellerModuleServices; 
 
 public class OfferManagementService : IOfferManagementService
 {

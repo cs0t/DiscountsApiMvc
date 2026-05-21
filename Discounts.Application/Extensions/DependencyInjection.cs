@@ -1,3 +1,4 @@
+using Discounts.Application.Behaviors;
 using Discounts.Application.Interfaces.AdminModuleContracts;
 using Discounts.Application.Interfaces.AuthContracts;
 using Discounts.Application.Interfaces.CustomerModuleContracts;
@@ -8,6 +9,7 @@ using Discounts.Application.Services.AuthServices;
 using Discounts.Application.Services.CustomerModuleServices;
 using Discounts.Application.Services.SellerModuleServices;
 using Discounts.Application.Services.SystemSettingsServices;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Discounts.Application.Extensions;
@@ -26,6 +28,12 @@ public static class DependencyInjection
         services.AddScoped<IOfferManagementAdminService, OfferManagementAdminService>();
         services.AddScoped<ISystemSettingsManagementService, SystemSettingsManagementService>();
         services.AddScoped<ICategoryManagementService, CategoryManagementService>();
+        
+        //add pipeline behaviors
+        services.AddTransient(typeof(IPipelineBehavior<,>),typeof(AuthorizationBehavior<,>));
+        services.AddTransient(typeof(IPipelineBehavior<,>),typeof(ValidationBehavior<,>));
+        services.AddTransient(typeof(IPipelineBehavior<,>),typeof(TransactionBehavior<,>));
+        
         
         return services;
     }

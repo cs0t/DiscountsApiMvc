@@ -1,7 +1,9 @@
 namespace Discounts.Application.Interfaces.UnitOfWorkContracts;
 
-public interface IUnitOfWork
+public interface IUnitOfWork : IAsyncDisposable
 {
+    Task BeginTransactionAsync(CancellationToken ct = default);
+    Task CommitAsync(CancellationToken ct = default);
     Task SaveChangesAsync(CancellationToken ct = default);
-    Task ExecuteInTransactionAsync(Func<Task> action, CancellationToken ct = default);
+    Task RollbackAsync(CancellationToken ct = default);
 }

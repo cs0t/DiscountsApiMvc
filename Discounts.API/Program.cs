@@ -14,6 +14,8 @@ using FluentValidation;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Discounts.API.Validation;
+using Discounts.Application.Handlers.Admin;
+using Discounts.Application.Handlers.Admin.Categories;
 using Microsoft.Extensions.Options;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -22,6 +24,13 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddApplicationDbContext(builder.Configuration);
+
+//add mediatr
+builder.Services.AddMediatR(cfg =>
+{
+    cfg.RegisterServicesFromAssemblyContaining<CreateCategoryHandler>();
+});
+
 //builder.Services.AddMemoryCache();
 builder.Services.AddInfrastructure();
 builder.Services.AddHostedServices();

@@ -1,3 +1,4 @@
+using Discounts.Application.Interfaces.AuthContracts;
 using Discounts.Application.Interfaces.JwtContracts;
 using Discounts.Infra.Persistence;
 using Discounts.Infra.Repositories;
@@ -34,6 +35,8 @@ public static class DependencyInjection
         services.AddScoped<ISystemSettingsRepository, SystemSettingsRepository>();
         services.AddScoped<IUnitOfWork, EfUnitOfWork>();
         services.AddScoped<IJwtService, JwtService>();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
+        
         return services;
     }
 }
